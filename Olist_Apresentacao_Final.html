@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Olist Logistics Intelligence — Diagnóstico Executivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1a2122;--bg-2:#202b2c;--panel:#243030;--panel-2:#1e2829;
+    --stroke:rgba(151,167,233,.13);--stroke-2:rgba(151,167,233,.26);
+    --ink:#f0eeec;--ink-2:#a0aeb0;--ink-3:#6b7a7b;
+    --accent:#97a7e9;--accent-2:#adb9ec;--cyan:#93816e;
+    --danger:#c0392b;--warn:#886a57;--good:#7a9e8a;
+    --slate:#5a6465;--ocean:#97a7e9;--mocha:#886a57;--sand:#93816e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',-apple-system,'Segoe UI',Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+  .deck{scroll-snap-type:y mandatory;height:100vh;overflow-y:scroll}
+  .slide-wrap{scroll-snap-align:center;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .slide{position:relative;width:min(1160px,96vw);aspect-ratio:16/9;
+    background:radial-gradient(120% 90% at 82% -10%,rgba(151,167,233,.12),transparent 55%),
+      radial-gradient(90% 80% at -8% 108%,rgba(95,227,218,.08),transparent 55%),
+      linear-gradient(160deg,var(--bg-2),#060912 70%);
+    border:1px solid var(--stroke);border-radius:22px;
+    box-shadow:0 40px 120px -50px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.03);
+    overflow:hidden;padding:clamp(22px,3.4vw,52px);display:flex;flex-direction:column}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+  .eyebrow{font-size:clamp(9px,.86vw,12px);letter-spacing:.28em;text-transform:uppercase;color:var(--ink-2);font-weight:600;
+    display:flex;align-items:center;gap:10px}
+  .eyebrow::before{content:"";width:26px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--cyan))}
+  .pageno{font-size:clamp(9px,.86vw,12px);letter-spacing:.18em;color:var(--ink-3);font-weight:600}
+  .pageno b{color:var(--ink)}
+  h1{font-weight:800;line-height:1.02;letter-spacing:-.02em}
+  h2{font-weight:700;line-height:1.05;letter-spacing:-.015em}
+  .kicker{color:var(--accent-2)}
+  .muted{color:var(--ink-2)}.dim{color:var(--ink-3)}
+  .body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:16px;
+    font-size:clamp(9px,.82vw,11px);color:var(--ink-3);letter-spacing:.04em}
+  .foot .brand{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--ink-2)}
+  .dotmark{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--cyan));box-shadow:0 0 12px rgba(151,167,233,.5)}
+  .cover h1{font-size:clamp(30px,5.2vw,66px)}
+  .cover .sub{font-size:clamp(13px,1.5vw,20px);color:var(--ink-2);max-width:60ch;margin-top:18px;font-weight:300;line-height:1.5}
+  .cover .strip{display:flex;gap:14px;flex-wrap:wrap;margin-top:auto}
+  .chip{border:1px solid var(--stroke);background:rgba(17,28,58,.6);border-radius:14px;padding:14px 18px;min-width:140px;backdrop-filter:blur(6px)}
+  .chip .n{font-size:clamp(18px,2.4vw,30px);font-weight:700}
+  .chip .l{font-size:clamp(9px,.82vw,11px);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:4px}
+  .chip.hero{border-color:var(--stroke-2);background:linear-gradient(150deg,rgba(151,167,233,.15),rgba(147,129,110,.06))}
+  .chip.hero .n{background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:26px}
+  .ncard{border:1px solid var(--stroke);border-radius:16px;padding:18px 16px;
+    background:linear-gradient(180deg,rgba(17,28,58,.55),rgba(10,17,34,.3));
+    display:flex;flex-direction:column;min-height:0;position:relative;overflow:hidden;
+    transition:transform .3s ease,border-color .3s ease}
+  .ncard::after{content:"";position:absolute;inset:0;border-radius:16px;
+    background:radial-gradient(120% 60% at 50% -20%,rgba(151,167,233,.11),transparent 60%);opacity:0;transition:opacity .3s}
+  .ncard:hover{transform:translateY(-4px);border-color:var(--stroke-2)}
+  .ncard:hover::after{opacity:1}
+  .ncard .num{font-size:clamp(20px,2.4vw,30px);font-weight:800;color:var(--accent-2);letter-spacing:-.02em}
+  .ncard h3{font-size:clamp(12px,1.15vw,16px);font-weight:700;margin:12px 0 6px}
+  .ncard p{font-size:clamp(10px,.92vw,12.5px);color:var(--ink-2);line-height:1.45;font-weight:300}
+  .ncard .q{margin-top:auto;font-size:clamp(9px,.8vw,11px);color:var(--accent-2);font-weight:600;letter-spacing:.02em;padding-top:12px}
+  .split{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(24px,3vw,52px);align-items:center;height:100%}
+  .lead h2{font-size:clamp(22px,3vw,40px)}
+  .lead .p{font-size:clamp(12px,1.25vw,16px);color:var(--ink-2);line-height:1.55;margin-top:16px;font-weight:300;max-width:44ch}
+  .reco{margin-top:22px;border-left:3px solid var(--accent);
+    background:linear-gradient(90deg,rgba(151,167,233,.10),transparent);padding:14px 18px;border-radius:0 12px 12px 0}
+  .reco .tag{font-size:clamp(8px,.78vw,10px);letter-spacing:.2em;text-transform:uppercase;color:var(--accent-2);font-weight:700}
+  .reco .t{font-size:clamp(11px,1.12vw,15px);color:var(--ink);line-height:1.5;margin-top:6px;font-weight:400}
+  .viz{background:linear-gradient(180deg,rgba(15,23,46,.7),rgba(9,14,26,.5));
+    border:1px solid var(--stroke);border-radius:18px;padding:clamp(16px,2vw,26px);height:100%;
+    display:flex;flex-direction:column;justify-content:center}
+  svg{display:block;width:100%;height:auto;overflow:visible}
+  .viz-title{font-size:clamp(10px,.9vw,12px);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:14px}
+  .delta{font-weight:800;letter-spacing:-.01em}
+  .pbar{height:clamp(38px,5vw,64px);border-radius:12px;position:relative;overflow:hidden;border:1px solid var(--stroke)}
+  .pbar .fill{position:absolute;inset:0;border-radius:11px}
+  .levers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+  .lever{border:1px solid var(--stroke);border-radius:16px;padding:18px;
+    background:linear-gradient(180deg,rgba(17,28,58,.5),rgba(10,17,34,.28));display:flex;flex-direction:column}
+  .lever h4{font-size:clamp(12px,1.15vw,15px);font-weight:700;margin-bottom:8px}
+  .lever p{font-size:clamp(10px,.9vw,12px);color:var(--ink-2);line-height:1.45;font-weight:300}
+  .tags{display:flex;gap:8px;margin-top:auto;padding-top:14px;flex-wrap:wrap}
+  .t2{font-size:clamp(8px,.75vw,10px);font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:20px;border:1px solid var(--stroke-2)}
+  .t-low{color:var(--good);border-color:rgba(79,208,139,.4);background:rgba(79,208,139,.08)}
+  .t-high{color:var(--warn);border-color:rgba(245,182,92,.4);background:rgba(245,182,92,.08)}
+  .rigor{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+  .rcard{border:1px solid var(--stroke);border-radius:16px;padding:20px;
+    background:linear-gradient(180deg,rgba(17,28,58,.5),rgba(10,17,34,.28))}
+  .rcard .h{font-size:clamp(11px,1vw,13px);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+  .rcard .big{font-size:clamp(22px,3vw,38px);font-weight:800;margin:10px 0;letter-spacing:-.02em}
+  .rcard p{font-size:clamp(10px,.9vw,12px);color:var(--ink-2);line-height:1.5;font-weight:300}
+  .grad-blue{background:linear-gradient(120deg,#fff 10%,var(--accent-2) 60%,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .grad-danger{background:linear-gradient(120deg,#fff,var(--danger));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* MAPA */
+  .mapslide .body{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(20px,3vw,44px);height:100%}
+  .mapbox{position:relative;background:radial-gradient(ellipse at 50% 40%, rgba(151,167,233,.06), transparent 70%);
+    border:1px solid var(--stroke);border-radius:18px;padding:8px;overflow:hidden;min-height:0}
+  .mapbox svg{width:100%;height:100%;max-height:100%}
+  .mapinfo{display:flex;flex-direction:column;gap:14px;min-height:0}
+  .toggle{display:inline-flex;background:rgba(17,28,58,.6);border:1px solid var(--stroke);border-radius:12px;padding:4px;gap:4px;width:fit-content}
+  .toggle button{background:none;border:none;color:var(--ink-2);font-family:inherit;font-size:clamp(10px,.95vw,12px);
+    font-weight:600;padding:7px 14px;border-radius:9px;cursor:pointer;transition:.2s}
+  .toggle button.on{background:linear-gradient(135deg,var(--accent),#7b8fd4);color:#fff;box-shadow:0 6px 18px -8px var(--accent)}
+  .ranks{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .rank h4{font-size:clamp(8.5px,.8vw,10.5px);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:8px}
+  .rank h4 span{color:var(--good)}.rank.bad h4 span{color:var(--danger)}
+  .row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .uf{font-weight:700;font-size:clamp(10px,.95vw,12px);width:22px}
+  .rbar{flex:1;height:6px;border-radius:4px;background:rgba(150,170,220,.12);overflow:hidden}
+  .rbar i{display:block;height:100%;border-radius:4px}
+  .val{font-size:clamp(9.5px,.85vw,11px);color:var(--ink-2);width:54px;text-align:right}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;padding-top:6px;border-top:1px solid var(--stroke);margin-top:auto}
+  .lg{display:flex;align-items:center;gap:6px;font-size:clamp(8.5px,.78vw,10.5px);color:var(--ink-2)}
+  .sw{width:10px;height:10px;border-radius:3px}
+  .callout{border-left:3px solid var(--danger);background:linear-gradient(90deg,rgba(255,106,90,.10),transparent);
+    padding:10px 14px;border-radius:0 10px 10px 0;font-size:clamp(10.5px,.95vw,12.5px);line-height:1.5;color:var(--ink)}
+  .callout b{color:#fff}
+
+  .navdots{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:20}
+  .navdots a{width:9px;height:9px;border-radius:50%;background:rgba(150,170,220,.25);transition:.25s;display:block}
+  .navdots a.on{background:linear-gradient(135deg,var(--accent),var(--cyan));transform:scale(1.35);box-shadow:0 0 10px rgba(151,167,233,.6)}
+  .hint{position:fixed;left:0;right:0;bottom:14px;text-align:center;font-size:11px;color:var(--ink-3);letter-spacing:.1em;z-index:20;pointer-events:none;transition:opacity .5s}
+  .tip{position:fixed;pointer-events:none;background:#0C1428;border:1px solid var(--stroke-2);border-radius:10px;
+    padding:10px 12px;font-size:11px;line-height:1.5;opacity:0;transition:opacity .12s;z-index:30;
+    box-shadow:0 12px 30px -10px rgba(0,0,0,.8);white-space:nowrap}
+  .tip b{color:#fff}.tip .k{color:var(--ink-3)}
+
+  @media (max-width:820px){
+    .slide{aspect-ratio:auto;min-height:86vh}
+    .split{grid-template-columns:1fr;gap:22px}
+    .grid5{grid-template-columns:1fr 1fr}
+    .levers,.rigor{grid-template-columns:1fr}
+    .mapslide .body{grid-template-columns:1fr}
+    .navdots{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- 01 — CAPA -->
+  <section class="slide-wrap"><article class="slide cover">
+    <div class="top">
+      <div class="eyebrow">Diagnóstico Executivo · Operação Logística</div>
+      <div class="pageno"><b>01</b> / 10</div>
+    </div>
+    <div class="body" style="justify-content:flex-start;padding-top:6px">
+      <h1>Da promessa de entrega<br>à <span class="kicker">retenção do cliente</span>.</h1>
+      <p class="sub">O e-commerce vive da confiança. Cada atraso não é só um KPI vermelho — é um detrator gerado e Lifetime Value que evapora. Este diagnóstico mapeia <b style="color:var(--ink);font-weight:600">onde exatamente perdemos o cliente</b> e qual é o menor conjunto de ações que recupera o maior volume de valor.</p>
+    </div>
+    <div class="strip">
+      <div class="chip"><div class="n">96.470</div><div class="l">Pedidos entregues</div></div>
+      <div class="chip"><div class="n">91,9%</div><div class="l">OTD global</div></div>
+      <div class="chip"><div class="n">23 <span style="font-size:.5em;color:var(--ink-3);font-weight:500">dias</span></div><div class="l">P90 lead time</div></div>
+      <div class="chip"><div class="n">13,4%</div><div class="l">Notas 1-2</div></div>
+      <div class="chip hero"><div class="n">6,8% → ⅓</div><div class="l">da insatisfação total</div></div>
+    </div>
+    <div class="foot" style="margin-top:22px"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+  <!-- 02 — OVERVIEW -->
+  <section class="slide-wrap"><article class="slide">
+    <div class="top">
+      <div class="eyebrow">Como ler este diagnóstico</div>
+      <div class="pageno"><b>02</b> / 10</div>
+    </div>
+    <div class="body">
+      <h2>Um raciocínio em cinco perguntas — de <span class="kicker">o que aconteceu</span> a <span class="kicker">o que fazer</span>.</h2>
+      <div class="grid5">
+        <div class="ncard"><div class="num">01</div><h3>Visão Executiva</h3><p>Pontualidade, lead time e insatisfação por estado e ao longo do tempo.</p><div class="q">O que está acontecendo?</div></div>
+        <div class="ncard"><div class="num">02</div><h3>Performance Logística</h3><p>A cauda que dói: P90/P95 do prazo e a decomposição das 3 etapas.</p><div class="q">Quão bem entregamos?</div></div>
+        <div class="ncard"><div class="num">03</div><h3>Rede &amp; Custo de Servir</h3><p>Distância e peso dirigem custo e prazo — a tese estrutural, isolada.</p><div class="q">Por quê?</div></div>
+        <div class="ncard"><div class="num">04</div><h3>Experiência do Cliente</h3><p>O impacto humano do atraso na nota e na retenção.</p><div class="q">Quem sente?</div></div>
+        <div class="ncard"><div class="num">05</div><h3>Exceções &amp; Prioridade</h3><p>Onde intervir primeiro: hotspots regionais e sellers ineficientes.</p><div class="q">O que fazer?</div></div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+  <!-- 03 — MAPA DO BRASIL -->
+  <section class="slide-wrap"><article class="slide mapslide">
+    <div class="top">
+      <div class="eyebrow">Página 1 · Visão Executiva — o mapa da operação</div>
+      <div class="pageno"><b>03</b> / 10</div>
+    </div>
+    <h2 style="margin-top:8px">Onde entregamos bem — e onde a <span class="kicker">malha aperta</span>.</h2>
+    <div class="body">
+      <div class="mapbox">
+        <svg id="brmap" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid meet" aria-label="Mapa do Brasil por UF"></svg>
+      </div>
+      <div class="mapinfo">
+        <div class="toggle">
+          <button id="btnOtd" class="on" onclick="setMetric('otd')">OTD (pontualidade)</button>
+          <button id="btnFrete" onclick="setMetric('frete')">Frete médio</button>
+        </div>
+        <div class="ranks">
+          <div class="rank good"><h4>Melhores <span>▲</span></h4><div id="best"></div></div>
+          <div class="rank bad"><h4>Piores <span>▼</span></h4><div id="worst"></div></div>
+        </div>
+        <div class="callout" id="calloutText"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+  <!-- 04 — TESE / PARETO -->
+  <section class="slide-wrap"><article class="slide">
+    <div class="top">
+      <div class="eyebrow">A tese em um número · Concentração do dano</div>
+      <div class="pageno"><b>04</b> / 10</div>
+    </div>
+    <div class="body">
+      <div class="split">
+        <div class="lead">
+          <h2>Não estamos com um problema difuso.<br>Temos um <span class="kicker">ponto de alavancagem</span>.</h2>
+          <p class="p">Apenas <b style="color:var(--ink)">6,77% dos pedidos</b> — os que atrasam — concentram <b style="color:var(--ink)">32,08% de todas as notas 1-2</b> da plataforma. A insatisfação não está espalhada; está represada numa fração pequena e endereçável da operação.</p>
+          <div class="reco">
+            <div class="tag">Leitura para a diretoria</div>
+            <div class="t">Consertar tudo é caro e lento. Consertar os 6,77% certos protege ⅓ da reputação com uma fração do investimento.</div>
+          </div>
+        </div>
+        <div class="viz">
+          <div class="viz-title">Desproporção: volume × dano</div>
+          <div style="display:flex;flex-direction:column;gap:22px">
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2);margin-bottom:8px"><span>Pedidos em atraso</span><span style="color:var(--ink);font-weight:700">6,77%</span></div>
+              <div class="pbar"><div class="fill" style="width:6.77%;background:linear-gradient(90deg,var(--accent),var(--accent-2))"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2);margin-bottom:8px"><span>Das notas 1-2 que eles geram</span><span style="color:var(--danger);font-weight:700">32,08%</span></div>
+              <div class="pbar"><div class="fill" style="width:32.08%;background:linear-gradient(90deg,var(--danger),#b09080)"></div></div>
+            </div>
+            <div style="text-align:center;margin-top:6px">
+              <span class="delta grad-danger" style="font-size:clamp(20px,2.6vw,34px)">≈ 5× </span>
+              <span style="font-size:12px;color:var(--ink-2)">mais dano por pedido do que a média</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+  <!-- 05 — PENHASCO -->
+  <section class="slide-wrap"><article class="slide">
+    <div class="top">
+      <div class="eyebrow">Insight 01 · O Penhasco do 4º Dia</div>
+      <div class="pageno"><b>05</b> / 10</div>
+    </div>
+    <div class="body">
+      <div class="split">
+        <div class="lead">
+          <h2>O cliente tolera o deslize.<br>Não tolera <span class="kicker">cruzar o 4º dia</span>.</h2>
+          <p class="p">A taxa de detratores mais que dobra ao passar da faixa de 1–3 dias (<b style="color:var(--ink)">33,15%</b>) para 4–7 dias (<b style="color:var(--ink)">70,65%</b>), e satura em ~82% depois. Não é uma reta — é um degrau. Existe um limiar psicológico claro no 4º dia.</p>
+          <div class="reco">
+            <div class="tag">Recomendação ao CEO</div>
+            <div class="t">Não precisamos zerar atrasos. Precisamos garantir que <b>nenhum atraso cruze o 3º dia</b>. A contingência logística deve disparar já em pedidos com 48h de atraso.</div>
+          </div>
+        </div>
+        <div class="viz">
+          <div class="viz-title">Taxa de detratores (notas 1–2) por faixa de atraso</div>
+          <svg viewBox="0 0 620 330" role="img" aria-label="Gráfico do Penhasco do 4º Dia">
+            <line x1="60" y1="290" x2="600" y2="290" stroke="rgba(150,170,220,.25)"/>
+            <g stroke="rgba(150,170,220,.08)"><line x1="60" y1="218" x2="600" y2="218"/><line x1="60" y1="146" x2="600" y2="146"/><line x1="60" y1="74" x2="600" y2="74"/></g>
+            <g fill="var(--ink-3)" font-size="11" text-anchor="end">
+              <text x="52" y="294">0%</text><text x="52" y="222">25%</text><text x="52" y="150">50%</text><text x="52" y="78">75%</text>
+            </g>
+            <line x1="255" y1="40" x2="255" y2="290" stroke="var(--danger)" stroke-width="1.5" stroke-dasharray="4 5" opacity=".8"/>
+            <text x="262" y="56" fill="var(--danger)" font-size="11" font-weight="700">o penhasco</text>
+            <!-- 33.15 -> 79.6 ; 70.65 -> 169.6 ; 82.3 -> 197.5 -->
+            <rect x="95"  y="210.4" width="110" height="79.6"  rx="6" fill="url(#g1)"/>
+            <text x="150" y="198" text-anchor="middle" fill="#fff" font-size="17" font-weight="800">33,15%</text>
+            <text x="150" y="312" text-anchor="middle" fill="var(--ink-2)" font-size="12">1–3 dias</text>
+            <rect x="305" y="120.4" width="110" height="169.6" rx="6" fill="url(#g2)"/>
+            <text x="360" y="108" text-anchor="middle" fill="#fff" font-size="17" font-weight="800">70,65%</text>
+            <text x="360" y="312" text-anchor="middle" fill="var(--ink-2)" font-size="12">4–7 dias</text>
+            <rect x="465" y="92.5"  width="110" height="197.5" rx="6" fill="url(#g3)"/>
+            <text x="520" y="80" text-anchor="middle" fill="#fff" font-size="17" font-weight="800">~82%</text>
+            <text x="520" y="312" text-anchor="middle" fill="var(--ink-2)" font-size="12">8+ dias</text>
+            <path d="M205 172 Q255 148 305 172" fill="none" stroke="var(--warn)" stroke-width="1.5"/>
+            <text x="255" y="138" text-anchor="middle" fill="var(--warn)" font-size="13" font-weight="800">+37,5 p.p.</text>
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#97a7e9"/><stop offset="1" stop-color="#7b8fd4"/></linearGradient>
+              <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b09080"/><stop offset="1" stop-color="#c0392b"/></linearGradient>
+              <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c0392b"/><stop offset="1" stop-color="#922b21"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+  <!-- 06 — FADIGA -->
+  <section class="slide-wrap"><article class="slide">
+    <div class="top">
+      <div class="eyebrow">Insight 02 · Fadiga da Espera</div>
+      <div class="pageno"><b>06</b> / 10</div>
+    </div>
+    <div class="body">
+      <div class="split">
+        <div class="lead">
+          <h2>Cumprir o SLA <span class="kicker">não basta</span>.<br>A promessa longa cansa o cliente.</h2>
+          <p class="p">Mesmo em pedidos entregues <b style="color:var(--ink)">rigorosamente no prazo</b>, a nota cai de forma monotônica conforme o lead time cresce: <b style="color:var(--ink)">4,44 → 4,36 → 4,27 → 4,15 → 3,97 → 3,62</b>. A pontualidade foi mantida constante — quem desgasta é a espera em si.</p>
+          <div class="reco">
+            <div class="tag">Recomendação ao CEO</div>
+            <div class="t">Rever os SLAs em rotas longas: <b>prometer menos e entregar mais rápido</b>, ou reestruturar centros de distribuição regionais para encurtar a promessa.</div>
+          </div>
+        </div>
+        <div class="viz">
+          <div class="viz-title">Nota média × lead time — somente entregas NO PRAZO</div>
+          <svg viewBox="0 0 620 300" role="img" aria-label="Fadiga da espera">
+            <line x1="60" y1="250" x2="600" y2="250" stroke="rgba(150,170,220,.25)"/>
+            <!-- 6 pontos monotônicos: 4.44 → 4.36 → 4.27 → 4.15 → 3.97 → 3.62 -->
+            <!-- x: 90, 190, 290, 390, 490, 560 ; y = mapped ; escala 3.5 (y=250) -> 4.5 (y=50) -->
+            <!-- y = 250 - (v-3.5)*200 -->
+            <!-- 4.44=62 ; 4.36=78 ; 4.27=96 ; 4.15=120 ; 3.97=156 ; 3.62=226 -->
+            <path d="M90 62 C 130 68, 160 74, 190 78 S 260 90, 290 96 S 360 112, 390 120 S 460 144, 490 156 S 540 200, 560 226" fill="none" stroke="url(#gline)" stroke-width="4" stroke-linecap="round"/>
+            <path d="M90 62 C 130 68, 160 74, 190 78 S 260 90, 290 96 S 360 112, 390 120 S 460 144, 490 156 S 540 200, 560 226 L560 250 L90 250 Z" fill="url(#garea)" opacity=".28"/>
+            <!-- pontos -->
+            <g><circle cx="90" cy="62" r="6" fill="#fff"/><circle cx="90" cy="62" r="12" fill="none" stroke="var(--accent-2)" stroke-width="2"/><text x="90" y="42" text-anchor="middle" fill="#fff" font-size="17" font-weight="800">4,44</text><text x="90" y="272" text-anchor="middle" fill="var(--ink-2)" font-size="11">0-5d</text></g>
+            <g><circle cx="190" cy="78" r="4" fill="var(--ink)"/><text x="190" y="272" text-anchor="middle" fill="var(--ink-2)" font-size="11">6-10d</text><text x="190" y="70" text-anchor="middle" fill="var(--ink-2)" font-size="10">4,36</text></g>
+            <g><circle cx="290" cy="96" r="4" fill="var(--ink)"/><text x="290" y="272" text-anchor="middle" fill="var(--ink-2)" font-size="11">11-15d</text><text x="290" y="88" text-anchor="middle" fill="var(--ink-2)" font-size="10">4,27</text></g>
+            <g><circle cx="390" cy="120" r="4" fill="var(--ink)"/><text x="390" y="272" text-anchor="middle" fill="var(--ink-2)" font-size="11">16-20d</text><text x="390" y="112" text-anchor="middle" fill="var(--ink-2)" font-size="10">4,15</text></g>
+            <g><circle cx="490" cy="156" r="4" fill="var(--ink)"/><text x="490" y="272" text-anchor="middle" fill="var(--ink-2)" font-size="11">21-30d</text><text x="490" y="148" text-anchor="middle" fill="var(--ink-2)" font-size="10">3,97</text></g>
+            <g><circle cx="560" cy="226" r="6" fill="#fff"/><circle cx="560" cy="226" r="12" fill="none" stroke="var(--danger)" stroke-width="2"/><text x="560" y="212" text-anchor="middle" fill="#fff" font-size="17" font-weight="800">3,62</text><text x="560" y="272" text-anchor="middle" fill="var(--ink-2)" font-size="11">31+d</text></g>
+            <text x="330" y="170" text-anchor="middle" fill="var(--danger)" font-size="14" font-weight="800">−0,82 · queda monotônica</text>
+            <text x="330" y="188" text-anchor="middle" fill="var(--ink-3)" font-size="11">sem quebrar uma única promessa</text>
+            <defs>
+              <linearGradient id="gline" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#97a7e9"/><stop offset="1" stop-color="#c0392b"/></linearGradient>
+              <linearGradient id="garea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#97a7e9"/><stop offset="1" stop-color="transparent"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+  <!-- 07 — RJ HOTSPOT -->
+  <section class="slide-wrap"><article class="slide">
+    <div class="top">
+      <div class="eyebrow">Foco regional · Rio de Janeiro</div>
+      <div class="pageno"><b>07</b> / 10</div>
+    </div>
+    <div class="body">
+      <div class="split">
+        <div class="lead">
+          <h2>O RJ é a nossa<br><span style="color:var(--danger)">fábrica de detratores</span>.</h2>
+          <p class="p">Risco é volume × probabilidade de falha — e o Rio combina os dois. Com <b style="color:var(--ink)">12.350 pedidos</b> e OTD de apenas <b style="color:var(--ink)">86,5%</b>, é o pior cruzamento de alto volume com baixa eficiência da malha. Cerca de <b style="color:var(--ink)">1.666 pedidos atrasados</b> ali dentro — e nota média de <b style="color:var(--ink)">3,97</b> (a mais baixa entre grandes estados).</p>
+          <div class="reco" style="border-color:var(--danger);background:linear-gradient(90deg,rgba(255,106,90,.14),transparent)">
+            <div class="tag" style="color:var(--danger)">Recomendação ao CEO</div>
+            <div class="t">Intervenção imediata na malha do RJ: revisão de parceiros locais e penalização de sellers ineficientes na região para estancar a perda de clientes.</div>
+          </div>
+        </div>
+        <div class="viz">
+          <div class="viz-title">Matriz de risco — volume × pontualidade (UF)</div>
+          <svg viewBox="0 0 560 340" role="img" aria-label="Matriz de risco por UF">
+            <rect x="290" y="200" width="260" height="100" fill="rgba(255,106,90,.09)"/>
+            <text x="420" y="292" text-anchor="middle" fill="rgba(255,106,90,.55)" font-size="10" letter-spacing="2">ZONA CRÍTICA · alto volume · baixo OTD</text>
+            <line x1="70" y1="300" x2="540" y2="300" stroke="rgba(150,170,220,.25)"/>
+            <line x1="70" y1="30" x2="70" y2="300" stroke="rgba(150,170,220,.25)"/>
+            <text x="305" y="326" text-anchor="middle" fill="var(--ink-3)" font-size="11">volume de pedidos →</text>
+            <text x="30" y="165" text-anchor="middle" fill="var(--ink-3)" font-size="11" transform="rotate(-90 30 165)">← OTD (pontualidade)</text>
+            <!-- fundo: outras UFs schematicamente -->
+            <g fill="rgba(120,150,255,.45)">
+              <circle cx="120" cy="70" r="5"/><circle cx="150" cy="85" r="6"/><circle cx="200" cy="78" r="7"/>
+              <circle cx="175" cy="115" r="5"/><circle cx="245" cy="102" r="8"/><circle cx="310" cy="88" r="9"/>
+              <circle cx="110" cy="128" r="4"/><circle cx="275" cy="138" r="6"/><circle cx="350" cy="112" r="9"/>
+              <circle cx="215" cy="155" r="5"/><circle cx="180" cy="200" r="4"/>
+            </g>
+            <!-- SP (extremo direito, alto) -->
+            <circle cx="510" cy="102" r="16" fill="rgba(95,227,218,.15)"/>
+            <circle cx="510" cy="102" r="9" fill="var(--cyan)"/>
+            <text x="510" y="88" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">SP</text>
+            <text x="510" y="126" text-anchor="middle" fill="var(--cyan)" font-size="9" font-weight="700">40.5k · 94,1%</text>
+            <!-- MG -->
+            <circle cx="380" cy="98" r="12" fill="rgba(95,227,218,.15)"/>
+            <circle cx="380" cy="98" r="7" fill="var(--cyan)"/>
+            <text x="380" y="86" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">MG</text>
+            <!-- RJ (destaque) -->
+            <circle cx="440" cy="240" r="22" fill="rgba(255,106,90,.18)"/>
+            <circle cx="440" cy="240" r="13" fill="var(--danger)"/>
+            <text x="440" y="207" text-anchor="middle" fill="#fff" font-size="15" font-weight="800">RJ</text>
+            <text x="440" y="273" text-anchor="middle" fill="var(--danger)" font-size="11" font-weight="700">12.350 · 86,5%</text>
+            <!-- AL como gêmeo silencioso -->
+            <circle cx="130" cy="285" r="7" fill="var(--warn)" opacity=".9"/>
+            <text x="130" y="277" text-anchor="middle" fill="var(--warn)" font-size="10" font-weight="700">AL 76%</text>
+          </svg>
+          <div style="text-align:center;font-size:10px;color:var(--ink-3);margin-top:6px">RJ, SP e MG com dado real · demais UFs esquemáticas · AL destacado como gêmeo silencioso</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+  <!-- 08 — CAUSA-RAIZ -->
+  <section class="slide-wrap"><article class="slide">
+    <div class="top">
+      <div class="eyebrow">Diagnóstico de causa-raiz · Móveis de Escritório</div>
+      <div class="pageno"><b>08</b> / 10</div>
+    </div>
+    <div class="body">
+      <div class="split">
+        <div class="lead">
+          <h2>A culpa não era da estrada.<br>Era do <span class="kicker">handling</span>.</h2>
+          <p class="p">Um seller concentrava <b style="color:var(--ink)">73,4% dos atrasos</b> em Móveis de Escritório. O reflexo seria culpar a transportadora — mas ao controlar a distância (faixa estreita de <b style="color:var(--ink)">~550–570 km</b>), o fator geográfico se dissolve. O que resta é o tempo de manuseio interno entre aprovação e postagem.</p>
+          <div class="reco" style="border-color:var(--good);background:linear-gradient(90deg,rgba(79,208,139,.14),transparent)">
+            <div class="tag" style="color:var(--good)">Recomendação ao CEO</div>
+            <div class="t">Em vez de subsidiar frete mais caro: <b>treinamento de picking/packing e SLA de handling</b> para esses sellers. Custo de implementação ~zero, ganho imediato.</div>
+          </div>
+        </div>
+        <div class="viz">
+          <div class="viz-title">Isolando a variável</div>
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <div>
+              <div style="font-size:11px;color:var(--ink-2);margin-bottom:8px">Distância — <b style="color:var(--good)">controlada</b> (~550–570 km)</div>
+              <svg viewBox="0 0 500 70">
+                <rect x="0" y="28" width="500" height="14" rx="7" fill="rgba(79,208,139,.12)"/>
+                <rect x="150" y="30" width="90" height="10" rx="5" fill="rgba(79,208,139,.5)"/>
+                <line x1="0" y1="35" x2="500" y2="35" stroke="var(--good)" stroke-width="2" stroke-dasharray="2 6" opacity=".6"/>
+                <text x="195" y="20" text-anchor="middle" fill="var(--good)" font-size="11" font-weight="700">faixa estreita</text>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--ink-2);margin-bottom:8px">Atrasos — <b style="color:var(--danger)">concentrados</b> num seller</div>
+              <div style="display:flex;align-items:center;gap:20px">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none">
+                  <svg viewBox="0 0 80 80" width="72" height="72">
+                    <circle cx="40" cy="40" r="30" fill="none" stroke="rgba(150,170,220,.15)" stroke-width="10"/>
+                    <circle cx="40" cy="40" r="30" fill="none" stroke="var(--danger)" stroke-width="10" stroke-linecap="round"
+                      stroke-dasharray="188" stroke-dashoffset="50" transform="rotate(-90 40 40)"/>
+                  </svg>
+                  <div style="font-size:clamp(18px,2vw,26px);font-weight:800;color:var(--danger);letter-spacing:-.02em;line-height:1;">73,4%</div>
+                </div>
+                <div style="font-size:12px;color:var(--ink-2);line-height:1.55">dos atrasos da categoria vinham de <b style="color:var(--ink)">um único vendedor</b> — problema operacional, não de rede.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+  <!-- 09 — PLANO -->
+  <section class="slide-wrap"><article class="slide">
+    <div class="top">
+      <div class="eyebrow">Plano de ação · Retorno esperado</div>
+      <div class="pageno"><b>09</b> / 10</div>
+    </div>
+    <div class="body">
+      <h2>Três alavancas. <span class="kicker">Baixo esforço, alto impacto.</span></h2>
+      <div class="levers">
+        <div class="lever">
+          <h4>1 · Barreira do 3º dia</h4>
+          <p>Contingência logística disparada em 48h de atraso, para nenhum pedido cruzar o penhasco do 4º dia.</p>
+          <div class="tags"><span class="t2 t-low">Esforço baixo</span><span class="t2 t-high">Protege ⅓ do dano</span></div>
+        </div>
+        <div class="lever">
+          <h4>2 · Encurtar a promessa</h4>
+          <p>Revisar SLA em rotas longas (&gt;31 dias) e estudar CDs regionais para reduzir a fadiga da espera.</p>
+          <div class="tags"><span class="t2 t-high">Esforço médio</span><span class="t2 t-high">+ nota estrutural</span></div>
+        </div>
+        <div class="lever">
+          <h4>3 · RJ + handling</h4>
+          <p>Intervir na malha do RJ e aplicar SLA/treinamento de handling aos sellers ineficientes.</p>
+          <div class="tags"><span class="t2 t-low">Custo ~zero</span><span class="t2 t-high">Ganho imediato</span></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;margin-top:18px;flex-wrap:wrap">
+        <div class="chip"><div class="n grad-blue">~1.666</div><div class="l">Pedidos atrasados só no RJ*</div></div>
+        <div class="chip"><div class="n grad-blue">70,6%</div><div class="l">Viram detrator após o 4º dia</div></div>
+        <div class="chip"><div class="n grad-blue">R$ 0</div><div class="l">Custo do fix de handling</div></div>
+        <div class="chip hero" style="flex:1;min-width:220px"><div class="l" style="margin:0 0 6px">Próximos passos</div>
+          <div style="font-size:clamp(11px,1vw,13px);color:var(--ink-2);line-height:1.45;font-weight:300">Monitoramento em tempo real das quebras de SLA · integração de dados das transportadoras · acompanhamento de NPS/faturamento nos pontos críticos mapeados.</div></div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+  <!-- 10 — BACKUP -->
+  <section class="slide-wrap"><article class="slide">
+    <div class="top">
+      <div class="eyebrow">Backup · Transparência analítica &amp; rigor</div>
+      <div class="pageno"><b>10</b> / 10</div>
+    </div>
+    <div class="body">
+      <h2>Por que confiar nos números.</h2>
+      <p class="p muted" style="max-width:70ch;margin-top:12px;font-size:clamp(12px,1.1vw,15px);font-weight:300;line-height:1.55">Analisar bem inclui saber o que descartar e como blindar o dado contra ruído. Três pilares sustentam este diagnóstico:</p>
+      <div class="rigor">
+        <div class="rcard">
+          <div class="h">Hipótese rejeitada</div>
+          <div class="big grad-blue">4,21→4,03</div>
+          <p>Testamos a "Síndrome do Frete Caro". O efeito foi fraco e não-monotônico — <b style="color:var(--ink)">descartado do painel</b> em nome da clareza. Rigor é também dizer não.</p>
+        </div>
+        <div class="rcard">
+          <div class="h">Guardrails de volume</div>
+          <div class="big grad-blue">30 · 300 · 50 · 100</div>
+          <p>Pisos amostrais mínimos por ranking eliminam a distorção de outliers de baixa amostra — o erro-padrão de proporção explode quando n é pequeno.</p>
+        </div>
+        <div class="rcard">
+          <div class="h">Qualidade verificada</div>
+          <div class="big grad-blue">695 <span style="font-size:.5em;color:var(--ink-3)">(0,72%)</span></div>
+          <p>Incoerências cronológicas expostas como <b style="color:var(--ink)">guardrail auditável</b>. Verificado empiricamente: P90/P95 não se alteram com ou sem elas.</p>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand"><span class="dotmark"></span>Olist Logistics Intelligence</span></div>
+  </article></section>
+
+</div>
+
+<div class="tip" id="tip"></div>
+<nav class="navdots" id="dots"></nav>
+<div class="hint" id="hint">use ↑ ↓ ou role para navegar · 10 slides</div>
+
+<script>
+  // ============ NAV ============
+  const deck=document.getElementById('deck');
+  const slides=[...document.querySelectorAll('.slide-wrap')];
+  const dots=document.getElementById('dots');
+  slides.forEach((s,i)=>{const a=document.createElement('a');a.href='#';a.setAttribute('aria-label','Slide '+(i+1));
+    a.onclick=e=>{e.preventDefault();s.scrollIntoView({behavior:'smooth'})};dots.appendChild(a)});
+  const dotEls=[...dots.children];
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){
+    const i=slides.indexOf(e.target);dotEls.forEach((d,j)=>d.classList.toggle('on',j===i));}})},{threshold:.55});
+  slides.forEach(s=>io.observe(s));
+  let idx=0;
+  function go(d){idx=Math.max(0,Math.min(slides.length-1,idx+d));slides[idx].scrollIntoView({behavior:'smooth'})}
+  addEventListener('keydown',e=>{
+    if(['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(1)}
+    if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1)}
+  });
+  deck.addEventListener('scroll',()=>{const h=document.getElementById('hint');h.style.opacity='0'},{once:true});
+
+  // ============ MAPA — dados REAIS do modelo (via PBI MCP) ============
+  const UF = [
+    {uf:'AC',nome:'Acre',reg:'Norte',lat:-8.77,lng:-70.55,ped:80,otd:96.25,frete:45.55,nota:4.09,piso:false},
+    {uf:'AL',nome:'Alagoas',reg:'Nordeste',lat:-9.62,lng:-36.82,ped:397,otd:76.05,frete:38.58,nota:3.85,piso:true},
+    {uf:'AM',nome:'Amazonas',reg:'Norte',lat:-3.47,lng:-65.10,ped:145,otd:95.86,frete:37.45,nota:4.24,piso:false},
+    {uf:'AP',nome:'Amapá',reg:'Norte',lat:1.41,lng:-51.77,ped:67,otd:95.52,frete:41.30,nota:4.24,piso:false},
+    {uf:'BA',nome:'Bahia',reg:'Nordeste',lat:-13.29,lng:-41.71,ped:3256,otd:85.96,frete:29.96,nota:3.93,piso:true},
+    {uf:'CE',nome:'Ceará',reg:'Nordeste',lat:-5.20,lng:-39.53,ped:1279,otd:84.68,frete:36.50,nota:3.94,piso:true},
+    {uf:'DF',nome:'Distrito Federal',reg:'Centro-Oeste',lat:-15.83,lng:-47.86,ped:2080,otd:92.93,frete:23.86,nota:4.13,piso:true},
+    {uf:'ES',nome:'Espírito Santo',reg:'Sudeste',lat:-19.19,lng:-40.34,ped:1995,otd:87.77,frete:24.57,nota:4.08,piso:true},
+    {uf:'GO',nome:'Goiás',reg:'Centro-Oeste',lat:-15.98,lng:-49.86,ped:1957,otd:91.82,frete:26.25,nota:4.10,piso:true},
+    {uf:'MA',nome:'Maranhão',reg:'Nordeste',lat:-5.42,lng:-45.44,ped:717,otd:80.33,frete:42.95,nota:3.83,piso:true},
+    {uf:'MG',nome:'Minas Gerais',reg:'Sudeste',lat:-18.10,lng:-44.38,ped:11354,otd:94.39,frete:23.46,nota:4.19,piso:true},
+    {uf:'MS',nome:'Mato Grosso do Sul',reg:'Centro-Oeste',lat:-20.51,lng:-54.54,ped:701,otd:88.45,frete:27.02,nota:4.16,piso:true},
+    {uf:'MT',nome:'Mato Grosso',reg:'Centro-Oeste',lat:-12.64,lng:-55.42,ped:886,otd:93.23,frete:32.77,nota:4.15,piso:true},
+    {uf:'PA',nome:'Pará',reg:'Norte',lat:-3.79,lng:-52.48,ped:946,otd:87.63,frete:39.70,nota:3.91,piso:true},
+    {uf:'PB',nome:'Paraíba',reg:'Nordeste',lat:-7.28,lng:-36.72,ped:517,otd:88.97,frete:48.84,nota:4.08,piso:true},
+    {uf:'PE',nome:'Pernambuco',reg:'Nordeste',lat:-8.38,lng:-37.86,ped:1593,otd:89.20,frete:35.83,nota:4.08,piso:true},
+    {uf:'PI',nome:'Piauí',reg:'Nordeste',lat:-6.60,lng:-42.28,ped:476,otd:84.03,frete:42.98,nota:3.99,piso:true},
+    {uf:'PR',nome:'Paraná',reg:'Sul',lat:-24.89,lng:-51.55,ped:4923,otd:95.00,frete:23.49,nota:4.24,piso:true},
+    {uf:'RJ',nome:'Rio de Janeiro',reg:'Sudeste',lat:-22.25,lng:-42.66,ped:12350,otd:86.53,frete:23.95,nota:3.97,piso:true},
+    {uf:'RN',nome:'Rio Grande do Norte',reg:'Nordeste',lat:-5.81,lng:-36.59,ped:474,otd:89.24,frete:39.26,nota:4.15,piso:true},
+    {uf:'RO',nome:'Rondônia',reg:'Norte',lat:-10.83,lng:-63.34,ped:243,otd:97.12,frete:46.43,nota:4.17,piso:false},
+    {uf:'RR',nome:'Roraima',reg:'Norte',lat:1.99,lng:-61.33,ped:41,otd:87.80,frete:48.34,nota:3.90,piso:false},
+    {uf:'RS',nome:'Rio Grande do Sul',reg:'Sul',lat:-30.17,lng:-53.50,ped:5344,otd:92.85,frete:24.81,nota:4.19,piso:true},
+    {uf:'SC',nome:'Santa Catarina',reg:'Sul',lat:-27.45,lng:-50.95,ped:3546,otd:90.24,frete:24.85,nota:4.13,piso:true},
+    {uf:'SE',nome:'Sergipe',reg:'Nordeste',lat:-10.57,lng:-37.45,ped:335,otd:84.78,frete:40.94,nota:3.91,piso:true},
+    {uf:'SP',nome:'São Paulo',reg:'Sudeste',lat:-22.19,lng:-48.79,ped:40494,otd:94.11,frete:17.33,nota:4.25,piso:true},
+    {uf:'TO',nome:'Tocantins',reg:'Norte',lat:-9.46,lng:-48.26,ped:274,otd:87.23,frete:42.35,nota:4.15,piso:false},
+  ];
+
+  const svg=document.getElementById('brmap');
+  const tip=document.getElementById('tip');
+  const NS='http://www.w3.org/2000/svg';
+  let metric='otd';
+
+  // Projeção Equirectangular Brasil: lat [-33,+5], lng [-73,-34]
+  const proj=(lat,lng)=>{
+    const x=(lng-(-73))/((-34)-(-73))*720+40;
+    const y=(5-lat)/(5-(-33))*720+40;
+    return [x,y];
+  };
+
+  function colorFor(d){
+    const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+    if(metric==='otd'){
+      if(d.otd>=94) return css('--good');
+      if(d.otd>=91) return css('--accent-2');
+      if(d.otd>=88) return css('--warn');
+      return css('--danger');
+    }else{
+      if(d.frete<=22) return css('--good');
+      if(d.frete<=30) return css('--accent-2');
+      if(d.frete<=40) return css('--warn');
+      return css('--danger');
+    }
+  }
+  const fmt=d=> metric==='otd' ? d.otd.toFixed(1)+'%' : 'R$'+d.frete.toFixed(0);
+  const rFor=ped=> 4 + Math.sqrt(ped)/6;
+
+  function drawMap(){
+    svg.innerHTML='';
+    // grid sutil de fundo (paralelos e meridianos)
+    const g=document.createElementNS(NS,'g');
+    g.setAttribute('stroke','rgba(120,150,255,.06)');
+    g.setAttribute('fill','none');
+    for(let lat=-30;lat<=0;lat+=10){
+      const [,y]=proj(lat,-50);
+      const line=document.createElementNS(NS,'line');
+      line.setAttribute('x1',40);line.setAttribute('x2',760);
+      line.setAttribute('y1',y);line.setAttribute('y2',y);
+      g.appendChild(line);
+    }
+    for(let lng=-70;lng<=-40;lng+=10){
+      const [x]=proj(-15,lng);
+      const line=document.createElementNS(NS,'line');
+      line.setAttribute('y1',40);line.setAttribute('y2',760);
+      line.setAttribute('x1',x);line.setAttribute('x2',x);
+      g.appendChild(line);
+    }
+    svg.appendChild(g);
+    // linhas conectando cada capital a SP (baixo destaque, dá sensação de rede)
+    const [sx,sy]=proj(-22.19,-48.79);
+    const netG=document.createElementNS(NS,'g');
+    netG.setAttribute('stroke','rgba(120,150,255,.09)');netG.setAttribute('stroke-width','1');
+    UF.forEach(d=>{
+      if(d.uf==='SP')return;
+      const [x,y]=proj(d.lat,d.lng);
+      const ln=document.createElementNS(NS,'line');
+      ln.setAttribute('x1',sx);ln.setAttribute('y1',sy);
+      ln.setAttribute('x2',x);ln.setAttribute('y2',y);
+      netG.appendChild(ln);
+    });
+    svg.appendChild(netG);
+    // bubbles
+    UF.forEach(d=>{
+      const [x,y]=proj(d.lat,d.lng);
+      const col=colorFor(d);
+      const r=rFor(d.ped);
+      // halo
+      const halo=document.createElementNS(NS,'circle');
+      halo.setAttribute('cx',x);halo.setAttribute('cy',y);
+      halo.setAttribute('r',r+8);
+      halo.setAttribute('fill',col);halo.setAttribute('opacity','0.14');
+      svg.appendChild(halo);
+      // bubble
+      const c=document.createElementNS(NS,'circle');
+      c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',r);
+      c.setAttribute('fill',col);c.setAttribute('opacity','.9');
+      c.setAttribute('stroke','#fff');c.setAttribute('stroke-width','1.2');c.setAttribute('stroke-opacity','.35');
+      c.style.cursor='pointer';c.style.transition='transform .18s';
+      c.addEventListener('mousemove',e=>{
+        tip.style.opacity='1';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px';
+        tip.innerHTML=`<b>${d.uf} — ${d.nome}</b><br>
+          <span class="k">OTD</span> ${d.otd.toFixed(1)}%<br>
+          <span class="k">Frete médio</span> R$ ${d.frete.toFixed(2)}<br>
+          <span class="k">Nota média</span> ${d.nota.toFixed(2)}<br>
+          <span class="k">Pedidos</span> ${d.ped.toLocaleString('pt-BR')}${d.piso?'':' <span class="k">(sob piso amostral)</span>'}`;
+      });
+      c.addEventListener('mouseleave',()=>tip.style.opacity='0');
+      svg.appendChild(c);
+      // label UF (só para bubbles significativas)
+      if(d.ped>=1500 || d.uf==='RJ' || d.uf==='AL'){
+        const t=document.createElementNS(NS,'text');
+        t.setAttribute('x',x);t.setAttribute('y',y - r - 6);
+        t.setAttribute('text-anchor','middle');
+        t.setAttribute('fill','#fff');
+        t.setAttribute('font-size','13');t.setAttribute('font-weight','700');
+        t.setAttribute('style','pointer-events:none');
+        t.textContent=d.uf;
+        svg.appendChild(t);
+      }
+    });
+  }
+
+  function renderRanks(){
+    // Piso amostral pra ranking: >= 300
+    const pool=UF.filter(u=>u.piso);
+    const asc=[...pool].sort((a,b)=> metric==='otd'? a.otd-b.otd : a.frete-b.frete);
+    const best= metric==='otd'? asc.slice(-5).reverse() : asc.slice(0,5);
+    const worst= metric==='otd'? asc.slice(0,5) : asc.slice(-5).reverse();
+    const max= metric==='otd'? 100 : Math.max(...pool.map(u=>u.frete));
+    const bar=arr=>arr.map(d=>{const col=colorFor(d);const w=(metric==='otd'?d.otd:d.frete)/max*100;
+      return `<div class="row"><span class="uf" style="color:${col}">${d.uf}</span>
+        <span class="rbar"><i style="width:${w}%;background:${col}"></i></span>
+        <span class="val">${fmt(d)}</span></div>`}).join('');
+    document.getElementById('best').innerHTML=bar(best);
+    document.getElementById('worst').innerHTML=bar(worst);
+  }
+  function renderLegend(){
+    const bands = metric==='otd'
+      ? [['≥ 94%','--good'],['91–94%','--accent-2'],['88–91%','--warn'],['< 88%','--danger']]
+      : [['≤ R$22','--good'],['R$22–30','--accent-2'],['R$30–40','--warn'],['> R$40','--danger']];
+    document.getElementById('legend').innerHTML = bands.map(b=>
+      `<span class="lg"><span class="sw" style="background:var(${b[1]})"></span>${b[0]}</span>`).join('');
+    document.getElementById('calloutText').innerHTML = metric==='otd'
+      ? `<b>RJ isolado na zona crítica:</b> 12.350 pedidos, OTD 86,5% — combinação de alto volume e baixa eficiência. <b>AL:</b> gêmeo silencioso com apenas 76,1% de OTD.`
+      : `<b>Frete SP → Norte:</b> de R$ 17 a R$ 48 (2,8×) — a distância dirige custo. Nordeste e Norte concentram frete elevado sobre baixo volume, comprimindo margem.`;
+  }
+  function setMetric(m){
+    metric=m;
+    document.getElementById('btnOtd').classList.toggle('on',m==='otd');
+    document.getElementById('btnFrete').classList.toggle('on',m==='frete');
+    drawMap();renderRanks();renderLegend();
+  }
+  drawMap();renderRanks();renderLegend();
+</script>
+</body>
+</html>

@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<!-- DS: Xperiun v4 · Doc placeholders e padrões: ver references/escopo.md desta skill -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Raio-X do Modelo · Projeto Olist</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg-deepest:#1a1f1f; --bg-dark:#1e2424; --bg-navy:#1a1e1e; --bg-indigo:#1d2020;
+  --bg-card:#1e2424; --bg-elevated:#252c2c; --bg-surface:#2a3030;
+  --accent-deep:#1a1e1e; --accent-mid:#6b5a4e; --accent-blue:#886a57;
+  --accent-bright:#979e97; --accent-glow:#5a6465;
+  --accent-gold-deep:#886a57; --accent-gold:#7d6a59;
+  --accent-gold-bright:#93816e; --accent-gold-glow:#b8bdb8;
+  --neon-cyan:#4FE3E8; --neon-magenta:#979e97; --neon-violet:#886a57; --neon-teal:#3FD1B8;
+  --text-white:#FFFFFF; --text-primary:#e8eded; --text-secondary:#b8c4c4;
+  --text-muted:#8a9a9a; --text-faint:#556060;
+  --border-faint:rgba(255,255,255,0.06); --border-mid:rgba(255,255,255,0.12);
+  --border-accent:rgba(90,100,101,0.4); --border-gold:rgba(147,129,110,0.35);
+  --shadow-card:0 4px 24px rgba(0,0,0,0.4);
+  --shadow-elevated:0 8px 48px rgba(0,0,0,0.6);
+  --gradient-orb:radial-gradient(ellipse at 38% 52%, #3a4d4d 0%, #2e3a3a 12%, #232a2a 28%, #1a2020 48%, #161c1c 70%);
+  --gradient-gold:linear-gradient(135deg, #b8bdb8 0%, #93816e 55%, #886a57 100%);
+  --gradient-surface:linear-gradient(135deg, #252c2c 0%, #1e2424 100%);
+  --font-display:'Bebas Neue', sans-serif;
+  --font-condensed:'Barlow Condensed', sans-serif;
+  --font-body:'Outfit', sans-serif;
+  --font-mono:'JetBrains Mono', 'Consolas', monospace;
+  --sidebar-w: 260px;
+  --topbar-h: 60px;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--bg-deepest);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+body::before {
+  content:''; position:fixed; inset:0; background: var(--gradient-orb);
+  z-index:-1; pointer-events:none;
+}
+
+/* ── Topbar ── */
+.topbar {
+  position: fixed; top: 0; left: var(--sidebar-w); right: 0; height: var(--topbar-h);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-faint);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; z-index: 90;
+}
+.project-name { font-family: var(--font-body); font-size: 14px; color: var(--text-secondary); }
+.project-name strong { color: var(--text-white); font-weight: 600; }
+
+.search-wrap { position: relative; }
+.search-input {
+  width: 320px; padding: 9px 16px 9px 38px; font-family: var(--font-body); font-size: 13px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border-faint); border-radius: 999px;
+  color: var(--text-white); transition: all 0.2s;
+}
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { outline: none; border-color: var(--border-accent); background: rgba(255,255,255,0.06); }
+.search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
+
+.menu-btn { display: none; background: transparent; border: 1px solid var(--border-mid); color: var(--text-white); font-family: var(--font-condensed); font-size: 12px; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: var(--sidebar-w); background: var(--bg-elevated);
+  border-right: 1px solid var(--border-faint);
+  overflow-y: auto; padding: 0 0 24px;
+  z-index: 100;
+}
+.sidebar-brand {
+  display: flex; align-items: center; gap: 10px;
+  height: var(--topbar-h);
+  padding: 0 24px;
+  font-family: var(--font-condensed); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.18em; color: var(--accent-glow); text-transform: uppercase;
+  border-bottom: 1px solid var(--border-faint);
+  margin-bottom: 24px;
+}
+.sidebar-brand .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-glow); box-shadow: 0 0 8px var(--accent-glow);
+}
+.nav-section { margin-bottom: 28px; }
+.nav-section-title {
+  font-family: var(--font-condensed); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--text-muted); padding: 0 24px 8px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 24px; font-family: var(--font-body); font-size: 13px;
+  color: var(--text-secondary); text-decoration: none;
+  border-left: 2px solid transparent; transition: all 0.15s;
+}
+.nav-link:hover { background: rgba(255,255,255,0.03); color: var(--text-white); }
+.nav-link.active { background: rgba(90,100,101,0.08); color: var(--accent-glow); border-left-color: var(--accent-glow); }
+.nav-link .icon { font-family: var(--font-condensed); font-weight: 700; opacity: 0.6; font-size: 11px; min-width: 18px; }
+.nav-link .count { margin-left: auto; font-family: var(--font-condensed); font-size: 11px; color: var(--text-muted); padding: 2px 6px; background: rgba(255,255,255,0.04); border-radius: 4px; }
+
+.nav-sub {
+  padding-left: 36px; margin-top: 4px;
+}
+.nav-sub a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 16px 4px 0; font-family: var(--font-body); font-size: 12.5px;
+  color: var(--text-secondary); text-decoration: none; line-height: 1.5;
+}
+.nav-sub a:hover { color: var(--accent-glow); }
+.nav-sub .badge-mini {
+  font-family: var(--font-condensed); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 1px 6px; border-radius: 999px; flex-shrink: 0;
+}
+.badge-mini.fato { background: rgba(151,158,151,0.15); color: var(--neon-magenta); }
+.badge-mini.dim { background: rgba(90,100,101,0.15); color: var(--accent-glow); }
+.badge-mini.med { background: rgba(147,129,110,0.15); color: var(--accent-gold-bright); }
+.badge-mini.aux { background: rgba(107,114,154,0.2); color: var(--text-muted); }
+
+/* ── Main ── */
+.main {
+  margin-left: var(--sidebar-w);
+  padding-top: var(--topbar-h);
+  min-height: 100vh;
+}
+.main-inner { max-width: 920px; margin: 0 auto; padding: 48px 48px 96px; }
+
+/* ── Sections ── */
+section {
+  scroll-margin-top: 76px;  /* offset pra anchor scroll passar do topbar fixo */
+}
+.section-divider {
+  border: none;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(147,129,110,0.5) 50%, transparent);
+  margin: 64px 0;
+}
+.section-eyebrow { font-family: var(--font-condensed); font-size: 11px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+.section-title { font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 42px); line-height: 1.05; letter-spacing: 0.04em; color: var(--text-white); margin-bottom: 14px; text-transform: uppercase; }
+.section-title .gold { background:var(--gradient-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.section-desc { font-family: var(--font-body); font-size: 16px; color: var(--text-secondary); line-height: 1.7; max-width: 64ch; margin-bottom: 36px; }
+.section-desc strong { color: var(--text-white); font-weight: 600; }
+
+/* ── Hero ── */
+.hero-block { padding: 36px 0 0; }
+.hero-eyebrow { font-family: var(--font-condensed); font-size: 12px; font-weight: 300; letter-spacing: 0.5em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 18px; }
+.hero-title { font-family: var(--font-condensed); font-size: clamp(28px, 4vw, 44px); font-weight: 300; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-white); line-height: 1.05; margin-bottom: 8px; word-break: break-word; }
+.hero-sub { font-family: var(--font-condensed); font-size: clamp(14px, 1.6vw, 18px); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background:var(--gradient-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom: 28px; }
+.hero-tagline { font-family: var(--font-body); font-style: italic; font-size: 17px; color: var(--text-secondary); max-width: 60ch; line-height: 1.6; }
+
+/* ── Metric row ── */
+.metric-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 32px 0 48px; }
+@media(max-width:780px){ .metric-row { grid-template-columns: repeat(2, 1fr); } }
+.metric-card { padding: 20px 18px; background: var(--gradient-surface); border: 1px solid var(--border-faint); border-radius: 12px; }
+.metric-num { font-family: var(--font-condensed); font-weight: 300; font-size: 32px; line-height: 1; color: var(--accent-gold-bright); margin-bottom: 6px; }
+.metric-label { font-family: var(--font-condensed); font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
+
+/* ── Inventory table ── */
+.inv-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 14px; margin-bottom: 32px; }
+.inv-table thead th { padding: 12px 14px; text-align: left; font-family: var(--font-condensed); font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-mid); }
+.inv-table tbody td { padding: 12px 14px; border-bottom: 1px solid var(--border-faint); color: var(--text-primary); }
+.inv-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+.inv-table tbody td.tab-name { font-family: var(--font-mono); font-size: 13px; color: var(--accent-glow); font-weight: 500; }
+.inv-table tbody td.right { text-align: right; font-family: var(--font-condensed); font-weight: 600; color: var(--accent-gold-bright); }
+
+.badge-inline {
+  display: inline-block; font-family: var(--font-condensed); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px;
+}
+.badge-inline.fato { background: rgba(151,158,151,0.12); border: 1px solid rgba(151,158,151,0.4); color: var(--neon-magenta); }
+.badge-inline.dim { background: rgba(90,100,101,0.12); border: 1px solid rgba(90,100,101,0.4); color: var(--accent-glow); }
+.badge-inline.med { background: rgba(147,129,110,0.12); border: 1px solid rgba(147,129,110,0.4); color: var(--accent-gold-bright); }
+.badge-inline.aux { background: rgba(107,114,154,0.15); border: 1px solid rgba(107,114,154,0.4); color: var(--text-muted); }
+
+/* ── Source / Config blocks ── */
+.callout { padding: 18px 22px; background: rgba(90,100,101,0.06); border: 1px solid var(--border-accent); border-radius: 10px; margin: 16px 0; font-family: var(--font-body); font-size: 14px; color: var(--text-primary); }
+.callout.warn { background: rgba(151,158,151,0.06); border-color: rgba(151,158,151,0.4); }
+.callout.warn::before { content: '⚠ '; color: var(--neon-magenta); font-weight: 700; }
+.callout strong { color: var(--text-white); }
+.callout code { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent-gold-bright); padding: 2px 6px; background: rgba(0,0,0,0.3); border-radius: 4px; word-break: break-all; }
+
+.config-list { list-style: none; padding: 0; margin: 16px 0; }
+.config-list li { display: flex; gap: 16px; padding: 10px 0; border-bottom: 1px dashed var(--border-faint); font-family: var(--font-body); font-size: 14px; }
+.config-list li:last-child { border-bottom: none; }
+.config-list .key { font-family: var(--font-condensed); font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); min-width: 200px; }
+.config-list .val { color: var(--text-primary); }
+.config-list .val.on { color: var(--neon-magenta); font-weight: 600; }
+
+/* ── Table card ── */
+.table-card {
+  background: var(--gradient-surface); border: 1px solid var(--border-faint);
+  border-radius: 14px; box-shadow: var(--shadow-card);
+  margin-bottom: 24px; overflow: hidden;
+}
+.table-card-head {
+  padding: 20px 24px; border-bottom: 1px solid var(--border-faint);
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+}
+.table-card-name { font-family: var(--font-mono); font-size: 18px; font-weight: 600; color: var(--accent-glow); }
+.table-card-meta { font-family: var(--font-body); font-size: 13px; color: var(--text-muted); }
+.table-card-body { padding: 20px 24px; }
+.table-card-body p { margin-bottom: 14px; color: var(--text-primary); font-size: 14px; line-height: 1.65; }
+.table-card-body .label { font-family: var(--font-condensed); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin: 18px 0 8px; }
+
+.col-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 13px; }
+.col-table thead th { padding: 8px 10px; text-align: left; font-family: var(--font-condensed); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-mid); }
+.col-table tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border-faint); color: var(--text-primary); vertical-align: top; }
+.col-table .col-name { font-family: var(--font-mono); font-size: 12.5px; color: var(--accent-glow); font-weight: 500; }
+.col-table .col-type { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+.col-table .col-papel { color: var(--text-secondary); font-size: 12.5px; }
+.col-table .col-notas { color: var(--text-muted); font-size: 12px; font-style: italic; }
+
+details.source-m { margin-top: 16px; }
+details.source-m summary { font-family: var(--font-condensed); font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; padding: 6px 0; }
+details.source-m summary:hover { color: var(--accent-glow); }
+details.source-m pre { margin-top: 8px; }
+
+pre.code {
+  font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6;
+  padding: 16px 20px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-faint);
+  border-left: 3px solid var(--accent-glow); border-radius: 8px;
+  color: var(--text-primary); overflow-x: auto; white-space: pre;
+}
+pre.code .k { color: var(--neon-magenta); font-weight: 600; }
+pre.code .f { color: var(--accent-glow); }
+pre.code .s { color: var(--accent-gold-bright); }
+pre.code .c { color: var(--text-muted); font-style: italic; }
+
+/* ── Measure group ── */
+.measure-group { margin-bottom: 36px; }
+.measure-group-title {
+  font-family: var(--font-display); font-size: 22px; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--text-white); margin-bottom: 6px;
+}
+.measure-group-meta { font-family: var(--font-body); font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+
+.measure-card {
+  background: var(--gradient-surface); border: 1px solid var(--border-faint);
+  border-radius: 12px; box-shadow: var(--shadow-card);
+  margin-bottom: 16px; padding: 20px 24px;
+}
+.measure-name { font-family: var(--font-mono); font-size: 16px; font-weight: 600; color: var(--accent-gold-bright); margin-bottom: 4px; }
+.measure-meta { font-family: var(--font-body); font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+.measure-meta code { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-secondary); }
+.measure-card .desc { font-size: 14px; color: var(--text-primary); margin-bottom: 14px; }
+.measure-card .label { font-family: var(--font-condensed); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin: 14px 0 6px; }
+.measure-deps { font-family: var(--font-body); font-size: 13px; color: var(--text-secondary); }
+.measure-deps code { font-family: var(--font-mono); font-size: 12px; color: var(--accent-glow); padding: 1px 6px; background: rgba(90,100,101,0.08); border-radius: 4px; }
+
+/* Mini measure (expansível) */
+details.measure-mini {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border-faint);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+}
+details.measure-mini:hover { border-color: var(--border-mid); }
+details.measure-mini[open] { border-color: var(--border-accent); background: var(--gradient-surface); margin-bottom: 16px; }
+details.measure-mini summary {
+  display: grid; grid-template-columns: 1fr auto 24px; gap: 16px; align-items: center;
+  padding: 10px 16px; cursor: pointer; list-style: none;
+}
+details.measure-mini summary::-webkit-details-marker { display: none; }
+details.measure-mini summary::marker { content: ""; }
+details.measure-mini summary .name { font-family: var(--font-mono); font-size: 13px; color: var(--accent-gold-bright); font-weight: 500; }
+details.measure-mini summary .dax { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px; }
+details.measure-mini summary .toggle { font-family: var(--font-condensed); font-size: 22px; font-weight: 300; color: var(--text-muted); transition: transform 0.25s; line-height: 1; text-align: center; }
+details.measure-mini[open] summary .toggle { transform: rotate(45deg); color: var(--accent-glow); }
+details.measure-mini[open] summary .dax { color: var(--text-secondary); }
+
+details.measure-mini .mini-body {
+  padding: 14px 18px 18px;
+  border-top: 1px dashed var(--border-faint);
+}
+details.measure-mini .mini-body p.desc { font-size: 14px; color: var(--text-primary); line-height: 1.65; margin-bottom: 12px; }
+details.measure-mini .mini-body p.desc:last-child { margin-bottom: 0; }
+details.measure-mini .mini-body p.desc strong { color: var(--text-white); font-weight: 600; }
+details.measure-mini .mini-body p.meta { font-family: var(--font-body); font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+details.measure-mini .mini-body p.meta code { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-secondary); padding: 1px 6px; background: rgba(255,255,255,0.04); border-radius: 4px; }
+details.measure-mini[open].anchor { border-color: rgba(147,129,110,0.4); }
+details.measure-mini .mini-body .label { font-family: var(--font-condensed); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin: 12px 0 6px; }
+details.measure-mini .mini-body .measure-deps { font-family: var(--font-body); font-size: 13px; color: var(--text-secondary); }
+details.measure-mini .mini-body .measure-deps code { font-family: var(--font-mono); font-size: 12px; color: var(--accent-glow); padding: 1px 5px; background: rgba(90,100,101,0.08); border-radius: 4px; margin: 0 2px; }
+details.measure-mini .mini-body pre.code { font-size: 12px; padding: 14px 18px; margin-top: 4px; }
+
+/* ── Relacionamentos · SVG ── */
+.rel-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 820px;
+  margin: 0 auto 28px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border-faint);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.rel-table { width: 100%; border-collapse: collapse; font-family: var(--font-body); font-size: 13px; }
+.rel-table thead th { padding: 10px 12px; text-align: left; font-family: var(--font-condensed); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-mid); }
+.rel-table tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border-faint); }
+.rel-table .from, .rel-table .to { font-family: var(--font-mono); font-size: 12px; color: var(--accent-glow); }
+.rel-table .card { font-family: var(--font-condensed); font-weight: 600; color: var(--text-secondary); letter-spacing: 0.05em; }
+.rel-table .dir-bi { color: var(--neon-magenta); font-weight: 600; }
+.rel-table .dir-single { color: var(--text-secondary); }
+
+/* ── Dependências ── */
+.dep-tree {
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.85;
+  padding: 24px 28px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-faint);
+  border-radius: 12px; color: var(--text-primary); overflow-x: auto; white-space: pre;
+  margin-bottom: 28px;
+}
+.dep-tree .root { color: var(--accent-gold-bright); font-weight: 600; }
+.dep-tree .branch { color: var(--accent-glow); }
+.dep-tree .leaf { color: var(--text-secondary); }
+.dep-tree .dim { color: var(--text-muted); font-style: italic; }
+
+.dep-reverse-card {
+  background: var(--gradient-surface); border: 1px solid var(--border-faint);
+  border-radius: 10px; padding: 18px 22px; margin-bottom: 14px;
+}
+.dep-reverse-card .head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.dep-reverse-card .head .name { font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--accent-gold-bright); }
+.dep-reverse-card .head .tag { font-family: var(--font-condensed); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); padding: 2px 8px; border: 1px solid var(--border-faint); border-radius: 999px; }
+.dep-reverse-card .by { font-family: var(--font-body); font-size: 13px; color: var(--text-secondary); }
+.dep-reverse-card .by code { font-family: var(--font-mono); font-size: 12px; color: var(--accent-glow); padding: 1px 5px; background: rgba(90,100,101,0.08); border-radius: 4px; margin: 0 2px; }
+.dep-reverse-card .impl { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-faint); font-family: var(--font-body); font-style: italic; font-size: 13px; color: var(--text-muted); }
+
+/* ── Footer ── */
+.footer { margin-top: 80px; padding-top: 36px; border-top: 1px solid var(--border-faint); text-align: center; }
+.footer-divider { width: 60px; height: 1px; background: var(--gradient-gold); margin: 0 auto 24px; opacity: 0.7; }
+.footer-text { font-family: var(--font-body); font-size: 15px; color: var(--text-secondary); margin-bottom: 20px; }
+.footer-text strong { color: var(--text-white); }
+.footer-text .gold { background: var(--gradient-gold); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight: 600; }
+.footer-cta {
+  display: inline-flex; align-items: center; gap: 10px; padding: 12px 28px;
+  background: rgba(90,100,101,0.1); border: 1px solid var(--border-accent);
+  border-radius: 999px; font-family: var(--font-condensed); font-weight: 700;
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent-glow); text-decoration: none; transition: all 0.3s;
+}
+.footer-cta:hover { background: rgba(90,100,101,0.2); border-color: var(--accent-glow); transform: translateY(-2px); }
+.footer-meta { font-family: var(--font-condensed); font-size: 10px; color: var(--text-muted); margin-top: 24px; letter-spacing: 0.25em; text-transform: uppercase; }
+
+/* ═══════════════════════════════════════════════════════════════
+   DS V4 EXTRAS · gold-grid + beams + orb-v2 + risca entre seções
+═══════════════════════════════════════════════════════════════ */
+
+/* Keyframes */
+@keyframes beamFall {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  5%   { opacity: 0.35; }
+  50%  { opacity: 0.9; }
+  95%  { opacity: 0.35; }
+  100% { transform: translateY(120vh); opacity: 0; }
+}
+@keyframes beamFallCenter {
+  0%   { transform: translate(-50%, -100%); opacity: 0; }
+  5%   { opacity: 0.35; }
+  50%  { opacity: 0.9; }
+  95%  { opacity: 0.35; }
+  100% { transform: translate(-50%, 120vh); opacity: 0; }
+}
+
+/* Gold-grid + beams (fixed full-screen, max 1400px) */
+.gold-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  left: 0; right: 0;
+  opacity: 0.85;
+}
+.gold-grid-col {
+  flex: 1;
+  height: 100%;
+  border-left: 1px solid rgba(136,106,87,0.06);
+  position: relative;
+  overflow: hidden;
+}
+.gold-grid-col:last-child { border-right: 1px solid rgba(136,106,87,0.06); }
+.gold-beam {
+  position: absolute;
+  top: 0;
+  left: -1px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, rgba(147,129,110,0.5) 50%, transparent 100%);
+  animation-name: beamFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.gold-beam.short  { height: 180px; }
+.gold-beam.medium { height: 260px; }
+.gold-beam.tall   { height: 380px; }
+.gold-beam.center { left: 50%; transform: translateX(-50%); animation-name: beamFallCenter; }
+.gold-beam.strong {
+  background: linear-gradient(180deg, transparent 0%, rgba(147,129,110,0.75) 50%, transparent 100%);
+}
+
+/* Risca dourada horizontal entre seções (giz que esmaece nas laterais) */
+section { position: relative; overflow: hidden; }
+section + section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(136,106,87,0.08) 15%,
+    rgba(147,129,110,0.32) 50%,
+    rgba(136,106,87,0.08) 85%,
+    transparent 100%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Section orb v2 — elipses assimétricas blue/purple (atmosfera ambient) */
+.section-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(90px);
+  opacity: 0.60;
+}
+.section-orb.blue-tall {
+  background: radial-gradient(ellipse 55% 78% at 38% 42%,
+    #c4caca 0%, #8a9a9b 6%, #5a6465 15%, #3a4445 28%, #1a1e1e 44%, transparent 62%);
+}
+.section-orb.blue-wide {
+  background: radial-gradient(ellipse 80% 58% at 58% 50%,
+    #c4caca 0%, #8a9a9b 7%, #5a6465 17%, #3a4445 32%, #1a1e1e 48%, transparent 65%);
+}
+.section-orb.blue-round {
+  background: radial-gradient(ellipse 70% 72% at 45% 40%,
+    #c4caca 0%, #5a6465 6%, #5a6465 15%, #3a4445 30%, #1a1e1e 46%, transparent 64%);
+}
+.section-orb.purple-tall {
+  background: radial-gradient(ellipse 55% 78% at 38% 42%,
+    #c8cfc9 0%, #979e97 6%, #886a57 15%, #3a4040 28%, #181c1c 44%, transparent 62%);
+}
+.section-orb.purple-wide {
+  background: radial-gradient(ellipse 80% 58% at 58% 50%,
+    #c8cfc9 0%, #979e97 7%, #886a57 17%, #3a4040 32%, #181c1c 48%, transparent 65%);
+}
+.section-orb.blue-hint {
+  background: radial-gradient(ellipse 68% 72% at 52% 48%,
+    #8a9a9b 0%, #5a6465 10%, #3a4445 22%, #1a1e1e 40%, transparent 60%);
+  opacity: 0.20;
+}
+.section-orb.purple-hint {
+  background: radial-gradient(ellipse 68% 72% at 52% 48%,
+    #886a57 0%, #5a6465 8%, #2a3030 20%, #181c1c 38%, transparent 58%);
+  opacity: 0.20;
+}
+
+/* Garante main-inner acima do gold-grid e orbs */
+.main-inner { position: relative; z-index: 2; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMAÇÕES · entrada hero · scroll reveal · ambient breathing · count-up · liquid sidebar
+═══════════════════════════════════════════════════════════════ */
+
+/* Ambient breathing — orb radial pulsa sutilmente (12s) */
+@keyframes ambientBreathe {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.86; }
+}
+body::before { animation: ambientBreathe 12s ease-in-out infinite; }
+
+/* Hero entrance · cascade fade+lift+blur-out */
+@keyframes heroFade {
+  from { opacity: 0; transform: translateY(28px); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+.anim-hero { opacity: 0; animation: heroFade 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.anim-d1 { animation-delay: 0.10s; }
+.anim-d2 { animation-delay: 0.28s; }
+.anim-d3 { animation-delay: 0.46s; }
+.anim-d4 { animation-delay: 0.64s; }
+
+/* Scroll reveal — IntersectionObserver liga .is-visible */
+.reveal {
+  opacity: 0; transform: translateY(28px); filter: blur(4px);
+  transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.85s ease;
+  will-change: opacity, transform, filter;
+}
+.reveal.is-visible { opacity: 1; transform: translateY(0); filter: blur(0); }
+.reveal.r-d1 { transition-delay: 0.08s; }
+.reveal.r-d2 { transition-delay: 0.16s; }
+.reveal.r-d3 { transition-delay: 0.24s; }
+.reveal.r-d4 { transition-delay: 0.32s; }
+
+/* Count-up · pulse glow ao terminar */
+@keyframes numPulse {
+  0%   { filter: drop-shadow(0 0 0 rgba(147,129,110,0)); }
+  35%  { filter: drop-shadow(0 0 36px rgba(147,129,110,0.55)); }
+  100% { filter: drop-shadow(0 0 14px rgba(147,129,110,0.20)); }
+}
+.num-pulse { animation: numPulse 1.4s ease-out forwards; }
+
+/* Particle field · pontos dourado/azul flutuando atrás */
+@keyframes particleFloat {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 0.55; }
+  90%  { opacity: 0.55; }
+  100% { transform: translateY(-110vh) translateX(var(--dx, 30px)); opacity: 0; }
+}
+.particle-field { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.particle {
+  position: absolute; width: 2px; height: 2px; border-radius: 50%;
+  background: var(--accent-gold-bright);
+  box-shadow: 0 0 6px var(--accent-gold-bright);
+  bottom: -8px;
+  animation: particleFloat linear infinite;
+  opacity: 0;
+}
+.particle.blue {
+  background: var(--accent-glow);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* Liquid sidebar indicator · pílula que desliza entre items ativos */
+.nav-liquid {
+  position: absolute; left: 0; width: 2px;
+  background: var(--accent-glow);
+  box-shadow: 0 0 12px var(--accent-glow);
+  border-radius: 2px;
+  transition: top 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              height 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none; opacity: 0;
+}
+.nav-liquid.is-active { opacity: 1; }
+.sidebar.has-liquid .nav-link.active { border-left-color: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gold-beam { animation: none !important; opacity: 0.15 !important; }
+  body::before { animation: none !important; }
+  .anim-hero { animation: none !important; opacity: 1 !important; }
+  .reveal { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+  .particle-field { display: none !important; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 980px) {
+  .menu-btn { display: block; }
+  .topbar { left: 0; padding: 0 20px; }
+  .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
+  .sidebar.open { transform: translateX(0); box-shadow: 0 0 50px rgba(0,0,0,0.6); }
+  .main { margin-left: 0; }
+  .main-inner { padding: 32px 20px 64px; }
+  .search-input { width: 180px; }
+  .project-name { display: none; }
+}
+
+/* ── Print ── */
+@media print {
+  body { background: white; color: #1A1A1A; }
+  body::before { display: none; }
+  .topbar, .sidebar, .menu-btn, .footer-cta { display: none; }
+  .main { margin-left: 0; padding-top: 0; }
+  .main-inner { padding: 24px; max-width: none; }
+  .table-card, .measure-card, .dep-reverse-card { box-shadow: none; background: white !important; border: 1px solid #ddd !important; break-inside: avoid; }
+  pre.code, .rel-matrix, .dep-tree { background: #f5f5f5 !important; color: #1A1A1A !important; }
+  .section-title, .measure-name, .table-card-name { color: #1A1A1A !important; -webkit-text-fill-color: #1A1A1A !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Gold-grid + beams (DS v4 ambient · grade fina + beams esparsos) -->
+<div class="gold-grid" aria-hidden="true">
+  <div class="gold-grid-col"></div>
+  <div class="gold-grid-col">
+    <div class="gold-beam medium" style="animation-duration: 7s; animation-delay: 0s;"></div>
+  </div>
+  <div class="gold-grid-col">
+    <div class="gold-beam tall strong" style="animation-duration: 9s; animation-delay: 3s;"></div>
+  </div>
+  <div class="gold-grid-col">
+    <div class="gold-beam medium center strong" style="animation-duration: 8s; animation-delay: 1.5s;"></div>
+  </div>
+  <div class="gold-grid-col">
+    <div class="gold-beam tall" style="animation-duration: 10s; animation-delay: 2s;"></div>
+  </div>
+  <div class="gold-grid-col">
+    <div class="gold-beam medium" style="animation-duration: 7.5s; animation-delay: 4.5s;"></div>
+  </div>
+  <div class="gold-grid-col"></div>
+</div>
+
+<!-- Particle field (gerado via JS) -->
+<div class="particle-field" aria-hidden="true"></div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="project-name">Projeto_Olist.SemanticModel</div>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" type="text" placeholder="Buscar tabela ou medida..." id="search">
+  </div>
+  <button class="menu-btn" id="menu-toggle">≡</button>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+
+  <div class="sidebar-brand">
+    <span class="dot"></span>
+    <span>Raio-X do Modelo</span>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Navegação</div>
+    <a href="#overview" class="nav-link active"><span class="icon">00</span>Overview</a>
+    <a href="#tabelas" class="nav-link"><span class="icon">01</span>Tabelas <span class="count">7</span></a>
+    <a href="#medidas" class="nav-link"><span class="icon">02</span>Medidas <span class="count">53</span></a>
+    <a href="#relacionamentos" class="nav-link"><span class="icon">03</span>Relacionamentos <span class="count">3</span></a>
+    <a href="#dependencias" class="nav-link"><span class="icon">04</span>Dependências</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Tabelas</div>
+    <div class="nav-sub">
+      
+<a href="#tab-fato-entregas"><span class="badge-mini fato">FATO</span>gold vw_fato_entregas</a>
+<a href="#tab-fato-itens"><span class="badge-mini fato">FATO</span>gold vw_fato_itens</a>
+<a href="#tab-medidas"><span class="badge-mini med">MED</span>Medidas</a>
+<a href="#tab-dcalendario"><span class="badge-mini dim">DIM</span>dCalendario</a>
+<a href="#tab-estados"><span class="badge-mini dim">DIM</span>estados</a>
+<a href="#tab-aux"><span class="badge-mini aux">AUX</span>Auxiliares</a>
+
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Medidas · Pastas</div>
+    <div class="nav-sub">
+      
+<a href="#folder-01">01 Volume</a>
+<a href="#folder-02">02 Prazo</a>
+<a href="#folder-03">03 Lead Time</a>
+<a href="#folder-04">04 Satisfação</a>
+<a href="#folder-05">05 Custo</a>
+<a href="#folder-06">06 Itens</a>
+<a href="#folder-07">07 Rede</a>
+<a href="#folder-08">08 Comparativos</a>
+<a href="#folder-09">09 Cards HTML</a>
+<a href="#folder-charts">10–18 Gráficos & Insights</a>
+
+    </div>
+  </div>
+
+</aside>
+
+<!-- Main -->
+<div class="main">
+<div class="main-inner">
+
+  <!-- Hero -->
+  <div class="hero-block">
+    <p class="hero-eyebrow anim-hero anim-d1">Documentação Power BI</p>
+    <h1 class="hero-title anim-hero anim-d2">Projeto Olist</h1>
+    <p class="hero-sub anim-hero anim-d3">Logística · E-commerce · Análise de Dados</p>
+    <p class="hero-tagline anim-hero anim-d4">Pipeline ponta a ponta: CSV → Medallion Architecture (Bronze/Silver/Gold) → SQL Server → Power BI. Dataset público Olist Brazilian E-Commerce (Kaggle), 96.470 pedidos entregues.</p>
+  </div>
+
+  <!-- Overview -->
+  <section id="overview">
+    <div class="section-orb blue-tall" style="left:-12%; top:5%; width:780px; height:1000px;" aria-hidden="true"></div>
+    <div class="section-orb purple-hint" style="right:-15%; bottom:0%; width:700px; height:700px;" aria-hidden="true"></div>
+
+    <div class="metric-row">
+      <div class="metric-card"><div class="metric-num">7</div><div class="metric-label">Tabelas</div></div>
+      <div class="metric-card"><div class="metric-num">53</div><div class="metric-label">Medidas</div></div>
+      <div class="metric-card"><div class="metric-num">3</div><div class="metric-label">Relacionamentos</div></div>
+      <div class="metric-card"><div class="metric-num">52</div><div class="metric-label">Colunas</div></div>
+      <div class="metric-card"><div class="metric-num">~12 MB</div><div class="metric-label">Tamanho .pbip</div></div>
+    </div>
+
+    <p class="section-eyebrow">00 · Overview</p>
+    <h2 class="section-title">Inventário de <span class="gold">tabelas</span></h2>
+    <p class="section-desc">O modelo contém <strong>7 tabelas</strong> — 2 fatos físicos na camada gold e 3 dimensões de apoio — com <strong>53 medidas DAX</strong> organizadas em 18 pastas de exibição, cobrindo volume, prazo, lead time, custo, satisfação do cliente e exceções operacionais.</p>
+
+    <table class="inv-table">
+      <thead><tr><th>Tabela</th><th>Tipo</th><th>Colunas</th><th>Medidas</th><th>Source</th></tr></thead>
+      <tbody>
+        
+<tr>
+  <td class="tab-name">gold vw_fato_entregas</td>
+  <td><span class="badge-inline fato">FATO</span></td>
+  <td class="right">25</td>
+  <td class="right">—</td>
+  <td>gold.fato_entregas (SQL Server)</td>
+</tr>
+<tr>
+  <td class="tab-name">gold vw_fato_itens</td>
+  <td><span class="badge-inline fato">FATO</span></td>
+  <td class="right">17</td>
+  <td class="right">—</td>
+  <td>gold.fato_itens (SQL Server)</td>
+</tr>
+<tr>
+  <td class="tab-name">Medidas</td>
+  <td><span class="badge-inline med">MEDIDAS</span></td>
+  <td class="right">1</td>
+  <td class="right">53</td>
+  <td>Tabela calculada (DAX)</td>
+</tr>
+<tr>
+  <td class="tab-name">dCalendario</td>
+  <td><span class="badge-inline dim">DIM</span></td>
+  <td class="right">19</td>
+  <td class="right">—</td>
+  <td>DAX (CALENDAR)</td>
+</tr>
+<tr>
+  <td class="tab-name">estados</td>
+  <td><span class="badge-inline dim">DIM</span></td>
+  <td class="right">6</td>
+  <td class="right">—</td>
+  <td>CSV → SQL Server</td>
+</tr>
+<tr>
+  <td class="tab-name">UF Volume OTD</td>
+  <td><span class="badge-inline aux">AUX</span></td>
+  <td class="right">—</td>
+  <td class="right">—</td>
+  <td>DAX (Choropleth)</td>
+</tr>
+<tr>
+  <td class="tab-name">Vendedores Handling Transito</td>
+  <td><span class="badge-inline aux">AUX</span></td>
+  <td class="right">—</td>
+  <td class="right">—</td>
+  <td>DAX (Scatter)</td>
+</tr>
+
+      </tbody>
+    </table>
+
+    <p class="section-desc" style="margin-top:32px;"><strong>Fonte de dados:</strong> SQL Server OlistDW (servidor VINICIUS, auth Windows). Tabelas físicas <code>gold.fato_entregas</code> (96.470 linhas, grão pedido) e <code>gold.fato_itens</code> (110.189 linhas, grão item). Dimensões: <code>dCalendario</code>, <code>estados</code> e tabelas auxiliares geradas via DAX.</p>
+
+    
+<div class="callout warn">
+  Tabelas <code>UF Volume OTD</code> e <code>Vendedores Handling Transito</code> são auxiliares geradas via DAX para visuais específicos (choropleth e scatter). Não possuem relacionamentos ativos e não devem ser filtradas diretamente.
+</div>
+
+
+    <p class="section-desc" style="margin-top:32px;"><strong>Configurações relevantes do modelo:</strong></p>
+
+    <ul class="config-list">
+      
+<li><span class="key">Cultura</span><span class="val">pt-BR</span></li>
+<li><span class="key">Auto Date/Time</span><span class="val">Desabilitado (sem LocalDateTable_*)</span></li>
+<li><span class="key">PBI_ProTooling</span><span class="val">DevMode · MCP-PBIModeling</span></li>
+<li><span class="key">ReturnErrorValuesAsNull</span><span class="val">Ativo</span></li>
+<li><span class="key">Legacy Redirects</span><span class="val">Ativo</span></li>
+<li><span class="key">Versão datasource</span><span class="val">PowerBI_V3</span></li>
+
+    </ul>
+
+  </section>
+
+  <hr class="section-divider"/>
+
+  <!-- Tabelas -->
+  <section id="tabelas">
+    <div class="section-orb purple-tall" style="left:-10%; top:5%; width:780px; height:1000px;" aria-hidden="true"></div>
+    <div class="section-orb blue-hint" style="right:-15%; bottom:0%; width:700px; height:700px;" aria-hidden="true"></div>
+    <p class="section-eyebrow">01 · Tabelas</p>
+    <h2 class="section-title">Catálogo de <span class="gold">tabelas</span></h2>
+    <p class="section-desc">Cada tabela com descrição, granularidade, colunas tipadas e source resumido.</p>
+
+    
+<div class="table-card" id="tab-fato-entregas">
+  <div class="table-card-head">
+    <span class="table-card-name">gold vw_fato_entregas</span>
+    <span class="badge-inline fato">FATO</span>
+    <span class="table-card-meta">96.470 linhas · grão = 1 pedido entregue · fonte: gold.fato_entregas</span>
+  </div>
+  <div class="table-card-body">
+    <p>Tabela de fato principal. Cada linha representa um pedido entregue ao cliente, com todas as métricas de prazo, lead time, valor financeiro e avaliação. É a base de todos os KPIs das páginas 1, 2, 4 e 5 do dashboard.</p>
+    <div class="label">Colunas</div>
+    <table class="col-table">
+      <thead><tr><th>Coluna</th><th>Tipo</th><th>Papel</th></tr></thead>
+      <tbody>
+        <tr><td class="col-name">id_pedido</td><td class="col-type">string</td><td class="col-papel">PK · chave de relacionamento com fato_itens e dCalendario</td></tr>
+        <tr><td class="col-name">data_compra</td><td class="col-type">date</td><td class="col-papel">Chave para dCalendario — base da inteligência temporal</td></tr>
+        <tr><td class="col-name">estado_cliente</td><td class="col-type">string</td><td class="col-papel">FK para estados.UF — filtragem geográfica</td></tr>
+        <tr><td class="col-name">lead_time_total_dias</td><td class="col-type">int</td><td class="col-papel">Compra → entrega em dias (métrica principal de SLA)</td></tr>
+        <tr><td class="col-name">atraso_dias</td><td class="col-type">int</td><td class="col-papel">Dias vs data prevista (negativo = adiantado)</td></tr>
+        <tr><td class="col-name">dias_ate_aprovacao</td><td class="col-type">int</td><td class="col-papel">Etapa 1 do funil de lead time</td></tr>
+        <tr><td class="col-name">dias_ate_postagem</td><td class="col-type">int</td><td class="col-papel">Etapa 2 — handling do vendedor</td></tr>
+        <tr><td class="col-name">dias_ate_cliente</td><td class="col-type">int</td><td class="col-papel">Etapa 3 — trânsito da transportadora</td></tr>
+        <tr><td class="col-name">nota_avaliacao</td><td class="col-type">double</td><td class="col-papel">Nota 1–5 do cliente (nullable)</td></tr>
+        <tr><td class="col-name">valor_produtos / valor_frete / valor_pago</td><td class="col-type">double</td><td class="col-papel">Financeiro do pedido</td></tr>
+        <tr><td class="col-name">Situacao Entrega</td><td class="col-type">coluna calc.</td><td class="col-papel">Adiantado / Em cima do prazo / Atrasado</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="table-card" id="tab-fato-itens">
+  <div class="table-card-head">
+    <span class="table-card-name">gold vw_fato_itens</span>
+    <span class="badge-inline fato">FATO</span>
+    <span class="table-card-meta">110.189 linhas · grão = 1 item de pedido · fonte: gold.fato_itens</span>
+  </div>
+  <div class="table-card-body">
+    <p>Tabela de fato no grão de item. Contém a dimensão geográfica (distância vendedor→cliente via STDistance do SQL Server) e informações de produto/categoria necessárias para análise de rede e custo de servir (página 3).</p>
+    <div class="label">Colunas</div>
+    <table class="col-table">
+      <thead><tr><th>Coluna</th><th>Tipo</th><th>Papel</th></tr></thead>
+      <tbody>
+        <tr><td class="col-name">id_pedido</td><td class="col-type">string</td><td class="col-papel">FK para gold vw_fato_entregas</td></tr>
+        <tr><td class="col-name">id_vendedor</td><td class="col-type">string</td><td class="col-papel">Chave do vendedor — análise de exceções</td></tr>
+        <tr><td class="col-name">estado_vendedor / estado_cliente</td><td class="col-type">string</td><td class="col-papel">Eixo do fluxo interestadual</td></tr>
+        <tr><td class="col-name">distancia_km</td><td class="col-type">double</td><td class="col-papel">Distância geodésica (SRID 4326) em km</td></tr>
+        <tr><td class="col-name">categoria_pt</td><td class="col-type">string</td><td class="col-papel">Categoria do produto traduzida para PT-BR</td></tr>
+        <tr><td class="col-name">peso_g</td><td class="col-type">int</td><td class="col-papel">Peso do produto em gramas</td></tr>
+        <tr><td class="col-name">valor_produto / valor_frete</td><td class="col-type">double</td><td class="col-papel">Financeiro por item</td></tr>
+        <tr><td class="col-name">Faixa Distancia</td><td class="col-type">coluna calc.</td><td class="col-papel">até 100km / 100-500km / 500-1000km / 1000-2000km / 2000+km / Sem Geo</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="table-card" id="tab-medidas">
+  <div class="table-card-head">
+    <span class="table-card-name">Medidas</span>
+    <span class="badge-inline med">MEDIDAS</span>
+    <span class="table-card-meta">53 medidas DAX · 18 pastas de exibição</span>
+  </div>
+  <div class="table-card-body">
+    <p>Tabela calculada dedicada exclusivamente às medidas. Organizada em pastas numeradas para facilitar navegação no painel de campos do Power BI.</p>
+    <div class="label">Pastas de exibição</div>
+    <table class="col-table">
+      <thead><tr><th>Pasta</th><th>Qtd</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td class="col-name">01 Volume</td><td>2</td><td class="col-papel">Pedidos, Pedidos Atrasados</td></tr>
+        <tr><td class="col-name">02 Prazo</td><td>4</td><td class="col-papel">% OTD, % Atrasados, % Atraso Severo (4+), Atraso Medio</td></tr>
+        <tr><td class="col-name">03 Lead Time</td><td>6</td><td class="col-papel">Lead Time Medio, Mediana, P90, P95, Etapas 1-3</td></tr>
+        <tr><td class="col-name">04 Satisfação</td><td>3</td><td class="col-papel">Nota Media, % Notas 1-2, Taxa de Review</td></tr>
+        <tr><td class="col-name">05 Custo</td><td>3</td><td class="col-papel">Frete Medio, Frete sobre Produto %, Ticket Medio</td></tr>
+        <tr><td class="col-name">06 Itens</td><td>4</td><td class="col-papel">% OTD (Item), Distancia Media, Lead Time Medio (Item), Frete Medio (Item)</td></tr>
+        <tr><td class="col-name">07 Rede</td><td>5</td><td class="col-papel">% Interestadual, Cobertura Distancia, Frete/Produto %, Distancia Media Regiao, Frete Medio Item (R$)</td></tr>
+        <tr><td class="col-name">08 Comparativos</td><td>14</td><td class="col-papel">MoM e YoY de todas as métricas-chave (OTD, Lead Time, Notas, Frete)</td></tr>
+        <tr><td class="col-name">09–18 HTML</td><td>12</td><td class="col-papel">Cards sparkline, gráficos, rankings, heatmaps, scrollers e insights — todos em HTML customizado</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="table-card" id="tab-dcalendario">
+  <div class="table-card-head">
+    <span class="table-card-name">dCalendario</span>
+    <span class="badge-inline dim">DIM</span>
+    <span class="table-card-meta">19 colunas · gerada via DAX CALENDAR()</span>
+  </div>
+  <div class="table-card-body">
+    <p>Dimensão de tempo contínua. Suporta inteligência temporal nas medidas comparativas (MoM, YoY) com REMOVEFILTERS seletivo por coluna para preservar contexto de outros slicers.</p>
+    <div class="label">Colunas principais</div>
+    <table class="col-table">
+      <thead><tr><th>Coluna</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td class="col-name">Date</td><td class="col-papel">Chave PK · relacionamento com data_compra</td></tr>
+        <tr><td class="col-name">AnoMes / AnoMes Num</td><td class="col-papel">Eixo de gráficos mensais e HASONEVALUE</td></tr>
+        <tr><td class="col-name">Mes Abrev / Mes Nome</td><td class="col-papel">Labels nos visuais HTML</td></tr>
+        <tr><td class="col-name">Ano / Trimestre</td><td class="col-papel">Slicers hierárquicos</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="table-card" id="tab-estados">
+  <div class="table-card-head">
+    <span class="table-card-name">estados</span>
+    <span class="badge-inline dim">DIM</span>
+    <span class="table-card-meta">27 linhas · UFs brasileiras · fonte: CSV</span>
+  </div>
+  <div class="table-card-body">
+    <p>Dimensão geográfica. Conecta estado_cliente da fato_entregas para análise regional. A coluna <code>regiao</code> é usada pelo visual de distância por região e pelo heatmap região × peso.</p>
+    <table class="col-table">
+      <thead><tr><th>Coluna</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td class="col-name">UF</td><td class="col-papel">PK · FK de estado_cliente</td></tr>
+        <tr><td class="col-name">regiao</td><td class="col-papel">Agrupador (Sudeste, Sul, Centro-Oeste, Nordeste, Norte)</td></tr>
+        <tr><td class="col-name">latitude / longitude</td><td class="col-papel">Choropleth shape map</td></tr>
+        <tr><td class="col-name">nome</td><td class="col-papel">Nome completo do estado</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="table-card" id="tab-aux">
+  <div class="table-card-head">
+    <span class="table-card-name">Tabelas Auxiliares</span>
+    <span class="badge-inline aux">AUX</span>
+    <span class="table-card-meta">UF Volume OTD · Vendedores Handling Transito</span>
+  </div>
+  <div class="table-card-body">
+    <p>Tabelas geradas via DAX para alimentar visuais específicos que exigem materialização prévia de dados calculados. Sem relacionamentos ativos — usadas por visuais de mapa choropleth e scatter de exceções.</p>
+  </div>
+</div>
+
+
+  </section>
+
+  <hr class="section-divider"/>
+
+  <!-- Medidas -->
+  <section id="medidas">
+    <div class="section-orb blue-wide" style="left:-5%; top:8%; width:1050px; height:720px;" aria-hidden="true"></div>
+    <div class="section-orb purple-hint" style="right:-15%; bottom:0%; width:700px; height:700px;" aria-hidden="true"></div>
+    <p class="section-eyebrow">02 · Medidas</p>
+    <h2 class="section-title">Catálogo de <span class="gold">medidas</span></h2>
+    <p class="section-desc">19 medidas agrupadas pelos 3 displayFolders do modelo. Detalhe das 4 medidas-âncora (Faturamento, Margem Bruta, % YoY, Medida Selecionada). Resto listado de forma compacta.</p>
+
+    
+<div class="measure-group" id="folder-01">
+  <div class="measure-group-title">01 Volume</div>
+  <div class="measure-group-meta">2 medidas · base de contagem do modelo</div>
+  <div class="measure-card">
+    <div class="measure-name">Pedidos</div>
+    <div class="measure-meta">COUNTROWS(gold vw_fato_entregas) · formato #,0</div>
+    <p class="desc">Total de pedidos entregues no contexto de filtro. Medida-raiz usada por <code>Pedidos MoM %</code>, <code>Pedidos YoY %</code> e pelo sparkline do Card Pedidos HTML.</p>
+    <div class="label">Dependentes</div>
+    <div class="measure-deps">Pedidos MoM % · Pedidos YoY % · Card Pedidos HTML · Gráfico Mensal HTML</div>
+  </div>
+  <div class="measure-card">
+    <div class="measure-name">Pedidos Atrasados</div>
+    <div class="measure-meta">CALCULATE(COUNTROWS, atraso_dias > 0) · formato #,0</div>
+    <p class="desc">Pedidos entregues após a data prevista. Base do <code>% Atrasados</code>.</p>
+  </div>
+</div>
+
+<div class="measure-group" id="folder-02">
+  <div class="measure-group-title">02 Prazo</div>
+  <div class="measure-group-meta">4 medidas · OTD e distribuição de atrasos</div>
+  <div class="measure-card">
+    <div class="measure-name">% OTD</div>
+    <div class="measure-meta">DIVIDE(pedidos com atraso_dias ≤ 0, total) · formato 0.00%</div>
+    <p class="desc">On-Time Delivery. Usa comparação dia a dia (<code>atraso_dias ≤ 0</code>) para evitar gap de ~1,34% causado por entregas que cruzam a meia-noite vs data prevista. Medida-âncora das páginas 1 e 2.</p>
+    <div class="label">Dependentes</div>
+    <div class="measure-deps">% OTD MoM (p.p.) · % OTD YoY (p.p.) · Card OTD HTML · Gráfico Mensal HTML · Ranking OTD HTML</div>
+  </div>
+  <details class="measure-mini">
+    <summary><span class="name">% Atrasados</span><span class="dax">DIVIDE(atraso_dias > 0, total)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Inverso do OTD. Exibido na Visão Executiva como métrica de destaque negativo.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">% Atraso Severo (4+)</span><span class="dax">DIVIDE(atraso_dias >= 4, total)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Threshold de 4 dias validado pelo insight <em>Penhasco do 4º Dia</em>: acima desse ponto, a taxa de detratores (notas 1-2) dobra abruptamente. Métrica-chave da página 5.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Atraso Medio (quando atrasa)</span><span class="dax">CALCULATE(AVERAGE(atraso_dias), atraso_dias > 0)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Severidade média dos atrasos, filtrado apenas para pedidos que atrasaram. Exclui o grande volume de entregas pontuais que distorceriam a média.</p></div>
+  </details>
+</div>
+
+<div class="measure-group" id="folder-03">
+  <div class="measure-group-title">03 Lead Time</div>
+  <div class="measure-group-meta">6 medidas · decomposição e distribuição estatística</div>
+  <div class="measure-card">
+    <div class="measure-name">Lead Time Medio</div>
+    <div class="measure-meta">AVERAGE(lead_time_total_dias) · formato 0.0</div>
+    <p class="desc">Tempo médio compra→entrega em dias. Medida-âncora da página 2. Decomposta em Etapa 1 (Aprovação), Etapa 2 (Postagem/Handling), Etapa 3 (Transporte). Etapa 3 representa ~74% do total.</p>
+    <div class="label">Dependentes</div>
+    <div class="measure-deps">Lead Time Medio MoM · Lead Time Medio YoY · Card Media LT HTML · Gráfico Mensal Lead Time HTML · Gráfico Decomposicao LT HTML</div>
+  </div>
+  <details class="measure-mini">
+    <summary><span class="name">P90 Lead Time</span><span class="dax">PERCENTILEX.INC(..., 0.90)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">90º percentil do lead time — a fronteira onde apenas 10% dos pedidos ficam acima. Usado como threshold de SLA rigoroso e referência para a fila de exceções da página 5 (P95 = 29 dias).</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">P95 Lead Time</span><span class="dax">PERCENTILEX.INC(..., 0.95)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">95º percentil. Threshold de corte da <em>Tabela Exceção P95 HTML</em> — pedidos acima desse ponto (29 dias) são candidatos a acompanhamento manual.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Mediana Lead Time</span><span class="dax">MEDIAN(lead_time_total_dias)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Mediana robusta a outliers extremos (194+ dias de possíveis erros de data). Complementar à média para comunicação executiva.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Etapas 1, 2 e 3</span><span class="dax">AVERAGE(dias_ate_aprovacao / postagem / cliente)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Decomposição do funil de lead time em três etapas operacionais. Alimentam o Gráfico Decomposicao LT HTML e o Gráfico Handling Transito Vendedor HTML da página 5.</p></div>
+  </details>
+</div>
+
+<div class="measure-group" id="folder-04">
+  <div class="measure-group-title">04 Satisfação</div>
+  <div class="measure-group-meta">3 medidas · experiência do cliente</div>
+  <details class="measure-mini">
+    <summary><span class="name">Nota Media</span><span class="dax">AVERAGE(nota_avaliacao)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Nota média 1-5. Insight validado: cai de 4,44 (lead time curto, sem atraso) para 3,62 (31+ dias, mesmo no prazo) — fenômeno <em>Fadiga da Espera</em>.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">% Notas 1-2</span><span class="dax">DIVIDE(notas ≤ 2, total com avaliação)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Taxa de detratores. Métrica preferida sobre a Nota Média para identificar problemas graves — mais sensível a eventos operacionais extremos.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Taxa de Review</span><span class="dax">DIVIDE(com nota, total pedidos)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Cobertura das avaliações. Guardrail: se muito baixo, as métricas de satisfação perdem representatividade estatística.</p></div>
+  </details>
+</div>
+
+<div class="measure-group" id="folder-05">
+  <div class="measure-group-title">05 Custo</div>
+  <div class="measure-group-meta">3 medidas · financeiro do pedido</div>
+  <details class="measure-mini">
+    <summary><span class="name">Frete sobre Produto %</span><span class="dax">SUM(valor_frete) / SUM(valor_produtos)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Custo logístico relativo ao valor do produto. Principal KPI de custo de servir na página 1 (Visão Executiva).</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Frete Medio</span><span class="dax">AVERAGE(valor_frete)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Frete médio absoluto por pedido.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Ticket Medio</span><span class="dax">AVERAGE(valor_produtos)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Ticket médio de produtos por pedido.</p></div>
+  </details>
+</div>
+
+<div class="measure-group" id="folder-06">
+  <div class="measure-group-title">06–07 Itens & Rede</div>
+  <div class="measure-group-meta">9 medidas · grão item e análise geográfica</div>
+  <details class="measure-mini">
+    <summary><span class="name">% OTD (Item)</span><span class="dax">DIVIDE(itens com atraso_dias ≤ 0, total itens)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">OTD ponderado por item (grão mais granular). Base do Gráfico Faixa Distancia HTML e heatmaps da página 3.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Distancia Media (km)</span><span class="dax">AVERAGE(distancia_km)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Distância geodésica média vendedor→cliente em km, calculada via SQL Server geography::STDistance (SRID 4326).</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">% Interestadual</span><span class="dax">DIVIDE(estado_vendedor ≠ estado_cliente, total)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Percentual de itens com origem e destino em estados diferentes. Indicador de complexidade logística da rede.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Cobertura Distancia %</span><span class="dax">DIVIDE(itens com distancia_km não nulo, total)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Guardrail de cobertura geográfica. Percentual de itens com coordenadas geocodificadas — itens sem geo são excluídos das análises de distância.</p></div>
+  </details>
+</div>
+
+<div class="measure-group" id="folder-08">
+  <div class="measure-group-title">08 Comparativos</div>
+  <div class="measure-group-meta">14 medidas · variações MoM e YoY</div>
+  <p style="font-family:var(--font-body);font-size:14px;color:var(--text-secondary)">Todas as métricas-âncora têm variantes MoM (mês anterior via DATEADD -1 MONTH) e YoY (mesmo mês do ano anterior via SAMEPERIODLASTYEAR). Implementam o padrão <code>HASONEVALUE(dCalendario[AnoMes])</code> para retornar BLANK quando não há um único mês no contexto — evitando comparações sem sentido em visões anuais. Usam <code>REMOVEFILTERS</code> seletivo em colunas específicas de dCalendario (não ALL) para preservar filtros de outros slicers.</p>
+  <details class="measure-mini">
+    <summary><span class="name">Pedidos MoM % / YoY %</span><span class="dax">DIVIDE(atual - ant, ant)</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Variação percentual de volume. Exibido nos cards sparkline da Visão Executiva.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">% OTD MoM / YoY (p.p.)</span><span class="dax">(atual - ant) * 100</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Variação em pontos percentuais de OTD. Multiplicado por 100 para exibição direta como p.p.</p></div>
+  </details>
+</div>
+
+<div class="measure-group" id="folder-09">
+  <div class="measure-group-title">09–18 Visuais HTML</div>
+  <div class="measure-group-meta">12 medidas · cards, gráficos, rankings, heatmaps e insights</div>
+  <p style="font-family:var(--font-body);font-size:14px;color:var(--text-secondary)">Todas as medidas HTML geram strings que alimentam o visual <strong>HTML Content</strong> do Power BI. Seguem convenções consistentes: fundo branco, <code>border-top: 3px solid [cor-acento]</code>, <code>border-radius: 14px</code>, <code>box-shadow: 0 3px 12px rgba(20,27,38,0.07)</code>, fonte Segoe UI. Sparklines usam SVG gerado via CONCATENATEX com bezier curves. Altura sempre via <code>height:100%</code> para adaptar ao container do Power BI.</p>
+  <details class="measure-mini">
+    <summary><span class="name">Card Pedidos / OTD / P90 / Notas / Frete HTML</span><span class="dax">Cards KPI com sparkline mensal</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Cards com valor principal, variações MoM/YoY e mini-gráfico de linha com área sombreada gerado em SVG puro via DAX. Paleta: slate #5A6465 (pedidos/OTD), terracotta #886A57 (P90), sage #979e97 (lead time médio).</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Gráfico Mensal HTML</span><span class="dax">Barras (pedidos) + linha (% OTD) por mês</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Gráfico combo mensal com divisores de ano, labels de volume (k) e dots de OTD. Usa REMOVEFILTERS em 6 colunas de dCalendario para manter série temporal completa independente de slicers de período.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Gráfico Distribuicao LT HTML</span><span class="dax">Histograma de lead time por faixas</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc">Histograma de 11 faixas (0-3d até 31+d) com coloração por severidade em relação ao P90/P95: sage até P90, slate P90-P95, terracotta acima P95.</p></div>
+  </details>
+  <details class="measure-mini">
+    <summary><span class="name">Insight Vendedor Ineficiente HTML</span><span class="dax">Card hardcoded com achado analítico</span><span class="toggle">+</span></summary>
+    <div class="mini-body"><p class="desc"><em>Gargalo Silencioso</em>: vendedor 7c67... concentra 73,4% das vendas de Móveis de Escritório e entrega em 22,4d vs 16,3d da concorrência na mesma faixa de distância. Insight validado no dataset antes de ser incorporado ao visual.</p></div>
+  </details>
+</div>
+
+
+  </section>
+
+  <hr class="section-divider"/>
+
+  <!-- Relacionamentos -->
+  <section id="relacionamentos">
+    <div class="section-orb purple-wide" style="right:-8%; top:8%; width:1050px; height:700px;" aria-hidden="true"></div>
+    <div class="section-orb blue-hint" style="left:-18%; bottom:0%; width:700px; height:700px;" aria-hidden="true"></div>
+    <p class="section-eyebrow">03 · Relacionamentos</p>
+    <h2 class="section-title">Mapa de <span class="gold">relacionamentos</span></h2>
+    <p class="section-desc">Star schema clássico — todas as dimensões relacionam diretamente com a fato fVendas. 4 relacionamentos ativos, 1 deles bi-direcional.</p>
+
+    
+<svg class="rel-svg" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- fato_entregas (centro) -->
+  <rect x="240" y="70" width="220" height="60" rx="10" fill="#1e2222" stroke="#5a6465" stroke-width="1.5"/>
+  <text x="350" y="96" text-anchor="middle" font-family="monospace" font-size="11" fill="#93816e" font-weight="600">gold vw_fato_entregas</text>
+  <text x="350" y="114" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5a6465">96.470 linhas · grão pedido</text>
+
+  <!-- dCalendario (topo) -->
+  <rect x="240" y="10" width="220" height="44" rx="8" fill="#1e2222" stroke="#5a6465" stroke-width="1"/>
+  <text x="350" y="29" text-anchor="middle" font-family="monospace" font-size="10" fill="#979e97">dCalendario</text>
+  <text x="350" y="45" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5a6465">Date ← data_compra</text>
+
+  <!-- estados (direita) -->
+  <rect x="500" y="70" width="170" height="44" rx="8" fill="#1e2222" stroke="#5a6465" stroke-width="1"/>
+  <text x="585" y="89" text-anchor="middle" font-family="monospace" font-size="10" fill="#979e97">estados</text>
+  <text x="585" y="105" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5a6465">UF ← estado_cliente</text>
+
+  <!-- fato_itens (esquerda) -->
+  <rect x="30" y="70" width="180" height="44" rx="8" fill="#1e2222" stroke="#5a6465" stroke-width="1"/>
+  <text x="120" y="89" text-anchor="middle" font-family="monospace" font-size="10" fill="#979e97">gold vw_fato_itens</text>
+  <text x="120" y="105" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5a6465">id_pedido → id_pedido</text>
+
+  <!-- seta dCalendario → fato_entregas -->
+  <line x1="350" y1="54" x2="350" y2="70" stroke="#886a57" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- seta fato_entregas → estados -->
+  <line x1="460" y1="95" x2="500" y2="95" stroke="#886a57" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- seta fato_itens → fato_entregas -->
+  <line x1="210" y1="92" x2="240" y2="92" stroke="#979e97" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow2)"/>
+
+  <!-- legend -->
+  <line x1="30" y1="160" x2="70" y2="160" stroke="#886a57" stroke-width="1.5"/>
+  <text x="76" y="164" font-family="sans-serif" font-size="9" fill="#5a6465">N:1 ativo</text>
+  <line x1="140" y1="160" x2="180" y2="160" stroke="#979e97" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="186" y="164" font-family="sans-serif" font-size="9" fill="#5a6465">N:1 ativo (fato→fato)</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#886a57"/>
+    </marker>
+    <marker id="arrow2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#979e97"/>
+    </marker>
+  </defs>
+</svg>
+
+
+    <p class="section-desc"><strong>Tabela detalhada:</strong></p>
+    <table class="rel-table">
+      <thead><tr><th>#</th><th>From</th><th>To</th><th>Card.</th><th>Direção</th><th>Ativo</th><th>Notas</th></tr></thead>
+      <tbody>
+        
+<tr>
+  <td>1</td>
+  <td class="from">gold vw_fato_entregas[data_compra]</td>
+  <td class="to">dCalendario[Date]</td>
+  <td>N:1</td><td>Única</td><td>✓</td>
+  <td>Base da inteligência temporal (MoM/YoY)</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td class="from">gold vw_fato_entregas[estado_cliente]</td>
+  <td class="to">estados[UF]</td>
+  <td>N:1</td><td>Única</td><td>✓</td>
+  <td>Filtro geográfico — regiao, nome, lat/lon</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td class="from">gold vw_fato_itens[id_pedido]</td>
+  <td class="to">gold vw_fato_entregas[id_pedido]</td>
+  <td>N:1</td><td>Única</td><td>✓</td>
+  <td>Liga grão item ao grão pedido — propagação de filtros via TREATAS onde necessário</td>
+</tr>
+
+      </tbody>
+    </table>
+  </section>
+
+  <hr class="section-divider"/>
+
+  <!-- Dependências -->
+  <section id="dependencias">
+    <div class="section-orb purple-tall" style="right:-8%; top:5%; width:800px; height:1050px;" aria-hidden="true"></div>
+    <div class="section-orb blue-hint" style="left:-15%; bottom:0%; width:700px; height:700px;" aria-hidden="true"></div>
+    <p class="section-eyebrow">04 · Dependências</p>
+    <h2 class="section-title">Grafo de <span class="gold">dependências</span></h2>
+    <p class="section-desc">Quem depende de quem entre as medidas. Útil pra entender o impacto de mudanças — alterar Faturamento mexe em 6 medidas a jusante.</p>
+
+    <p class="section-desc"><strong>Árvore de % Faturamento YoY (medida-raiz):</strong></p>
+    <div class="dep-tree">
+<pre style="font-family:var(--font-mono);font-size:13px;color:var(--text-primary);line-height:1.8">
+% OTD
+├── CALCULATE(COUNTROWS, atraso_dias ≤ 0)
+│   └── gold vw_fato_entregas[atraso_dias]
+└── COUNTROWS(gold vw_fato_entregas)
+
+% OTD MoM / YoY (p.p.)
+├── % OTD (atual)
+└── CALCULATE(% OTD, DATEADD / SAMEPERIODLASTYEAR)
+    └── dCalendario[Date]
+
+Gráfico Mensal HTML
+├── Pedidos
+├── % OTD
+└── dCalendario[AnoMes Num / Mes Abrev / Ano]
+    (REMOVEFILTERS em 6 colunas de dCalendario)
+
+Card OTD HTML
+├── % OTD
+├── % OTD MoM (p.p.)
+├── % OTD YoY (p.p.)
+└── dCalendario[AnoMes Num] (série sparkline)
+</pre>
+</div>
+
+    <p class="section-desc"><strong>Reverse — quem depende das medidas-base:</strong></p>
+
+    
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">
+  <div class="dep-reverse-card" style="background:var(--gradient-surface);border:1px solid var(--border-faint);border-radius:12px;padding:18px 20px">
+    <div style="font-family:var(--font-mono);font-size:14px;color:var(--text-white);margin-bottom:8px">Pedidos</div>
+    <div style="font-size:13px;color:var(--text-secondary)">→ Pedidos MoM % · Pedidos YoY %<br>→ Card Pedidos HTML<br>→ Gráfico Mensal HTML<br>→ Scroller Guardrail LT HTML</div>
+  </div>
+  <div class="dep-reverse-card" style="background:var(--gradient-surface);border:1px solid var(--border-faint);border-radius:12px;padding:18px 20px">
+    <div style="font-family:var(--font-mono);font-size:14px;color:var(--text-white);margin-bottom:8px">% OTD</div>
+    <div style="font-size:13px;color:var(--text-secondary)">→ % OTD MoM (p.p.) · YoY (p.p.)<br>→ Card OTD HTML<br>→ Gráfico Mensal HTML<br>→ Ranking OTD HTML</div>
+  </div>
+  <div class="dep-reverse-card" style="background:var(--gradient-surface);border:1px solid var(--border-faint);border-radius:12px;padding:18px 20px">
+    <div style="font-family:var(--font-mono);font-size:14px;color:var(--text-white);margin-bottom:8px">Lead Time Medio</div>
+    <div style="font-size:13px;color:var(--text-secondary)">→ Lead Time MoM · YoY<br>→ Card Media LT HTML<br>→ Gráfico Mensal Lead Time HTML<br>→ Gráfico Decomposicao LT HTML</div>
+  </div>
+  <div class="dep-reverse-card" style="background:var(--gradient-surface);border:1px solid var(--border-faint);border-radius:12px;padding:18px 20px">
+    <div style="font-family:var(--font-mono);font-size:14px;color:var(--text-white);margin-bottom:8px">% Notas 1-2</div>
+    <div style="font-size:13px;color:var(--text-secondary)">→ % Notas 1-2 MoM · YoY<br>→ Card Notas HTML<br>→ Gráfico Notas Baixas UF HTML<br>→ Gráfico Notas Baixas Categoria HTML</div>
+  </div>
+</div>
+
+
+    <p class="section-desc" style="margin-top:32px;"><strong>Tabelas mais referenciadas:</strong></p>
+    <ol style="font-family:var(--font-body);font-size:14px;color:var(--text-primary);padding-left:24px;line-height:2;">
+      
+<li style="color:var(--text-primary)"><strong>gold vw_fato_entregas</strong> — referenciada por 42 das 53 medidas</li>
+<li style="color:var(--text-primary)"><strong>dCalendario</strong> — 14 medidas comparativas (MoM/YoY)</li>
+<li style="color:var(--text-primary)"><strong>gold vw_fato_itens</strong> — 11 medidas de rede e custo de servir</li>
+<li style="color:var(--text-primary)"><strong>estados</strong> — 6 medidas de distância regional</li>
+
+    </ol>
+
+  </section>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-divider"></div>
+    <p class="footer-text">Projeto Olist · <strong>Vinicius Braga Bruno</strong></p>
+    
+    <p class="footer-meta">Data Engineering & Analytics Portfolio</p>
+  </div>
+
+</div>
+</div>
+
+<script>
+(function(){
+  // ── Sidebar mobile toggle ──
+  const menuBtn = document.getElementById('menu-toggle');
+  const sidebar = document.getElementById('sidebar');
+  if (menuBtn && sidebar) {
+    menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+  }
+
+  // ── Scroll spy ──
+  const navLinks = document.querySelectorAll('.sidebar .nav-link');
+  const sections = Array.from(navLinks).map(link => {
+    const id = link.getAttribute('href').slice(1);
+    return { id, link, el: document.getElementById(id) };
+  }).filter(s => s.el);
+
+  function updateActive() {
+    const scrollY = window.scrollY + 120;
+    let current = sections[0];
+    for (const s of sections) {
+      if (s.el.offsetTop <= scrollY) current = s;
+    }
+    navLinks.forEach(l => l.classList.remove('active'));
+    if (current) current.link.classList.add('active');
+  }
+  window.addEventListener('scroll', updateActive, { passive: true });
+  updateActive();
+
+  // ── Search (filtra cards por nome) ──
+  const search = document.getElementById('search');
+  const tableCards = document.querySelectorAll('.table-card');
+  const measureCards = document.querySelectorAll('.measure-card, .measure-mini');
+  search.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    [...tableCards, ...measureCards].forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = (q === '' || text.includes(q)) ? '' : 'none';
+    });
+  });
+
+  // ── Particle field · pontos dourado/azul flutuando ──
+  (function initParticles(){
+    const field = document.querySelector('.particle-field');
+    if (!field) return;
+    const N = 28;
+    for (let i = 0; i < N; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle' + (Math.random() < 0.4 ? ' blue' : '');
+      p.style.left = (Math.random() * 100) + '%';
+      p.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px');
+      p.style.animationDuration = (12 + Math.random() * 16) + 's';
+      p.style.animationDelay = (Math.random() * 18) + 's';
+      p.style.opacity = (0.35 + Math.random() * 0.4).toFixed(2);
+      field.appendChild(p);
+    }
+  })();
+
+  // ── Reveal-on-scroll ──
+  function initReveal(targets){
+    const els = [];
+    targets.forEach(({ sel, stagger }) => {
+      document.querySelectorAll(sel).forEach((el, i) => {
+        el.classList.add('reveal');
+        if (stagger) el.classList.add('r-d' + ((i % 4) + 1));
+        els.push(el);
+      });
+    });
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(el => el.classList.add('is-visible'));
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    els.forEach(el => io.observe(el));
+  }
+  initReveal([
+    { sel: '.metric-card', stagger: true },
+    { sel: '.section-title' },
+    { sel: '.section-desc' },
+    { sel: '.inv-table' },
+    { sel: '.callout' },
+    { sel: '.config-list' },
+    { sel: '.table-card', stagger: true },
+    { sel: '.measure-group' },
+    { sel: '.measure-card', stagger: true },
+    { sel: '.measure-mini', stagger: true },
+    { sel: '.rel-svg' },
+    { sel: '.rel-table' },
+    { sel: '.dep-tree' },
+    { sel: '.dep-reverse-card', stagger: true },
+    { sel: '.footer' }
+  ]);
+
+  // ── Count-up nos números ──
+  function tryCountUp(el){
+    const node = el.firstChild;
+    const txt = ((node && node.nodeType === 3 ? node.nodeValue : el.textContent) || '').trim();
+    const m = txt.match(/^(\d+(?:[.,]\d+)?)(.*)$/);
+    if (!m) return;
+    const numStr = m[1].replace(',', '.');
+    const target = parseFloat(numStr);
+    if (isNaN(target) || target === 0) return;
+    const suffix = m[2] || '';
+    const decimals = (numStr.split('.')[1] || '').length;
+    const duration = 1500;
+    const start = performance.now();
+    const ease = t => 1 - Math.pow(1 - t, 3);
+    const setVal = (s) => {
+      if (node && node.nodeType === 3) node.nodeValue = s;
+      else el.textContent = s;
+    };
+    setVal('0' + (decimals ? '.' + '0'.repeat(decimals) : '') + suffix);
+    function tick(now){
+      const t = Math.min(1, (now - start) / duration);
+      const v = ease(t) * target;
+      setVal((decimals ? v.toFixed(decimals) : Math.round(v)) + suffix);
+      if (t < 1) requestAnimationFrame(tick);
+      else el.classList.add('num-pulse');
+    }
+    requestAnimationFrame(tick);
+  }
+  function initCountUps(selector){
+    const els = document.querySelectorAll(selector);
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(tryCountUp);
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          tryCountUp(e.target);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    els.forEach(el => io.observe(el));
+  }
+  initCountUps('.metric-num');
+
+  // ── Liquid sidebar indicator · pílula segue .nav-link.active ──
+  (function liquidSidebar(){
+    if (!sidebar) return;
+    const pill = document.createElement('div');
+    pill.className = 'nav-liquid';
+    sidebar.appendChild(pill);
+    sidebar.classList.add('has-liquid');
+    function moveTo(link){
+      if (!link) { pill.classList.remove('is-active'); return; }
+      const r = link.getBoundingClientRect();
+      const sr = sidebar.getBoundingClientRect();
+      pill.style.top = (r.top - sr.top + sidebar.scrollTop + 6) + 'px';
+      pill.style.height = (r.height - 12) + 'px';
+      pill.classList.add('is-active');
+    }
+    const mo = new MutationObserver(() => moveTo(sidebar.querySelector('.nav-link.active')));
+    sidebar.querySelectorAll('.nav-link').forEach(l => {
+      mo.observe(l, { attributes: true, attributeFilter: ['class'] });
+    });
+    moveTo(sidebar.querySelector('.nav-link.active'));
+    window.addEventListener('resize', () => moveTo(sidebar.querySelector('.nav-link.active')));
+  })();
+})();
+</script>
+
+</body>
+</html>
