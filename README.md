@@ -51,7 +51,7 @@ Testamos se fretes absolutos altos geravam notas baixas. O efeito existiu, mas f
 - **Dois grãos, zero fan-out.** Tabelas fato de pedido e item mantidas separadas e reconciliadas via `TREATAS` no DAX, preservando a integridade matemática de cada métrica.
 - **Engenharia geoespacial no banco.** Distância geodésica calculada via `geography::STDistance` (SRID 4326) direto no SQL Server, colocando o cálculo pesado onde ele é mais eficiente.
 
-📖 **Documentação técnica aprofundada: [`LOGISTICS_DOCUMENTATION.md`](./LOGISTICS_DOCUMENTATION.md)**
+📖 **Documentação técnica aprofundada: [`README_DETALHADO.md`](./README_DETALHADO.md)**
 
 ---
 
@@ -73,7 +73,7 @@ Modelo em **estrela**, com dois grãos deliberadamente mantidos separados:
 - `gold.fato_itens` — grão de item (110.189 linhas): frete, peso, categoria, distância
 - `dCalendario` e `estados` — dimensões de contexto
 
-O cruzamento entre grãos é feito via `TREATAS(VALUES(vw_fato_itens[id_pedido]), vw_fato_entregas[id_pedido])` dentro de `CALCULATE`, sem fan-out e sem colapso de grão. Detalhamento com código DAX e SQL na [documentação técnica](./LOGISTICS_DOCUMENTATION.md).
+O cruzamento entre grãos é feito via `TREATAS(VALUES(vw_fato_itens[id_pedido]), vw_fato_entregas[id_pedido])` dentro de `CALCULATE`, sem fan-out e sem colapso de grão. Detalhamento com código DAX e SQL na [documentação técnica](./README_DETALHADO.md).
 
 ---
 
@@ -322,7 +322,7 @@ olist-logistics-intelligence/
 │   └── Documentacao_PBI.html          # documentação automática do modelo Power BI
 │
 ├── README.md
-├── LOGISTICS_DOCUMENTATION.md
+├── README_DETALHADO.md
 └── requirements.txt
 ```
 
