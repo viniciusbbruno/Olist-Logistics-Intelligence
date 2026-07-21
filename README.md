@@ -14,6 +14,16 @@
   <img src="https://img.shields.io/badge/Claude-MCP_Copilot-886a57?logo=anthropic&logoColor=white" alt="Claude MCP"/>
 </p>
 
+<p align="center">
+  <a href="https://viniciusbbruno.github.io/Olist-Logistics-Intelligence/Documentacao_PBI.html">
+    <img src="https://img.shields.io/badge/📊_Documentação-Power_BI_Model-F2C811?style=for-the-badge&logo=powerbi&logoColor=black" alt="Documentação Power BI"/>
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://viniciusbbruno.github.io/Olist-Logistics-Intelligence/Olist_Apresentacao_Final.html">
+    <img src="https://img.shields.io/badge/📑_Apresentação-Executiva-886a57?style=for-the-badge" alt="Apresentação Executiva"/>
+  </a>
+</p>
+
 ---
 
 ## Impacto e Insights de Negócio
