@@ -229,7 +229,7 @@ Além do desenvolvimento, utilizei uma **skill customizada de documentação Pow
 
 ![Documentação automática gerada via skill](./CAPAS/ai_pbi_documentation.png)
 
-> 📄 **A documentação completa gerada automaticamente está disponível em [`Documentacao_PBI.html`](./Documentacao_PBI.html)**
+> 📄 **A documentação completa gerada automaticamente está disponível em [`Documentacao_PBI.html`](https://viniciusbbruno.github.io/Olist-Logistics-Intelligence/Documentacao_PBI.html)**
 
 Gerar isso manualmente — para um modelo com 5 tabelas, ~80 medidas organizadas em 15 pastas e 6 relacionamentos — levaria horas e ficaria desatualizado na primeira alteração. Com a skill, o processo leva segundos e reflete sempre o estado atual do modelo.
 
